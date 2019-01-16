@@ -1,6 +1,20 @@
 # Akka.AtLeastOnceDeliveryJournaling
 
-Update this readme file with your details.
+The [`AtLeastOnceDeliveryActor` base type](https://getakka.net/api/Akka.Persistence.AtLeastOnceDeliveryActor.html) in its current form is a total non-pleasure to use in production, for the following reasons:
+
+1. Messages that are queued for reliable delivery via the `Deliver` method aren't automatically persisted, therefore the actor can't fulfill its delviery guarantees unless the user manually writes code for saving the `AtLeastOnceDeliverySnapshot` objects;
+2. It's not clear when or how often an `AtLeastOnceDeliverySnapshot` should be saved - there are no clear guidelines for this and actors with a large number of outstanding messages for delivery can pay massive performance penalties, having to save their entire delivery state at once all the time for each incremental change;
+3. Saving the `AtLeastOnceDeliverySnapshot` object requires either continuously rewriting one snapshot object without updating its sequence number (bad practice) or some awkard combination with using the normal `Persist` methods BUT without those `Persist` methods doing anything that can interfere with the contiguous state of the delivery snapshot - TL;DR; `Persist` can only really be used for things not directly related to delivery state;
+4. In general, this class requires the end user to memorize a significant amount of boilerplate when it comes to actually using it correctly.
+
+The goal of this project is to rewrite the `AtLeastOnceDeliveryActor` to do the following:
+
+1. Automatically persist all messages queued for delivery via the `akka.persistence.journal` - all delivery state is saved atomically at the time it is saved, rather than through continuously overwriting snapshots.
+2. Periodically take snapshots and cleanup the journal in the background, as delivery state is churned. Just do this automatically.
+3. Automatically recover all delivery state at startup.
+4. Don't intend for the user to `Persist` or `Snapshot` anything else inside this actor. Delivery state only. 
+
+We believe this will make the `AtLeastOnceDeliveryActor` more performant (smaller serialization / write-size impact), robust (persisted at all checkpoints), and easier to use ("it just works".)
 
 ## Building this solution
 To run the build script associated with this solution, execute the following:
