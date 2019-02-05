@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Akka.AtLeastOnceDeliveryJournaling\Akka.AtLeastOnceDeliveryJournaling.csproj" />
+    <ProjectReference Include="..\Akka.Persistence.Extras\Akka.Persistence.Extras.csproj" />
   </ItemGroup>
 
 </Project>

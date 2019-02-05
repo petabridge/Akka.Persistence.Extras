@@ -1,4 +1,7 @@
-# Akka.AtLeastOnceDeliveryJournaling
+# Akka.Persistence.Extras
+This package contains some additions to Akka.Persistence that many users commonly find to be useful.
+
+## `AtLeastOnceDeliveryActorV2`
 
 The [`AtLeastOnceDeliveryActor` base type](https://getakka.net/api/Akka.Persistence.AtLeastOnceDeliveryActor.html) in its current form is a total non-pleasure to use in production, for the following reasons:
 
@@ -15,6 +18,12 @@ The goal of this project is to rewrite the `AtLeastOnceDeliveryActor` to do the 
 4. Don't intend for the user to `Persist` or `Snapshot` anything else inside this actor. Delivery state only. 
 
 We believe this will make the `AtLeastOnceDeliveryActor` more performant (smaller serialization / write-size impact), robust (persisted at all checkpoints), and easier to use ("it just works".)
+
+## `DeDuplicatingReceiverActor`
+This actor is on the _receiving_ side of an `AtLeastOnceDelivery` actor, and it is responsible for using a persistent strategy to ensure that messages are never processed more than once.
+
+## `ExactlyOnceStronglyOrderedDeliveryActor`
+This actor is responsible for guaranteeing an explicit message delivery order to each individually address recipient. Messages will never be delivered in any order other than FIFO using this actor - the first un-acknowledged message MUST be delivered and ACKed before the next undelivered message will be sent.
 
 ## Building this solution
 To run the build script associated with this solution, execute the following:
