@@ -123,7 +123,7 @@ namespace Akka.Persistence.Extras
         public ReceiveOrdering Ordering => ReceiveOrdering.AnyOrder;
         public IReceiverState ConfirmProcessing(IConfirmableMessage message)
         {
-            _trackedLru[message.SenderId] = _timeProvider.Now.UtcDateTime;
+            UpdateLru(message.SenderId);
 
             // in the event that this is the first time we've seen this SenderId
             if (!_trackedIds.ContainsKey(message.SenderId))
@@ -139,6 +139,8 @@ namespace Akka.Persistence.Extras
 
         public bool AlreadyProcessed(IConfirmableMessage message)
         {
+            UpdateLru(message.SenderId);
+
             // TODO: performance optimize lookups in CircularBuffer
             return _trackedIds.ContainsKey(message.SenderId) 
                 && _trackedIds[message.SenderId].Contains(message.ConfirmationId);
@@ -160,6 +162,11 @@ namespace Akka.Persistence.Extras
             }
 
             return (this, senderIds);
+        }
+
+        private void UpdateLru(string senderId)
+        {
+            _trackedLru[senderId] = _timeProvider.Now.UtcDateTime;
         }
     }
 }
