@@ -1,4 +1,9 @@
-using System;
+// -----------------------------------------------------------------------
+// <copyright file="UnitTest1.cs" company="Petabridge, LLC">
+//      Copyright (C) 2015 - 2019 Petabridge, LLC <https://petabridge.com>
+// </copyright>
+// -----------------------------------------------------------------------
+
 using NBench;
 
 namespace Akka.AtLeastOnceDeliveryJournaling.Tests.Performance

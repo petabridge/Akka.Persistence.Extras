@@ -1,23 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿// -----------------------------------------------------------------------
+// <copyright file="ConfirmableGenerators.cs" company="Petabridge, LLC">
+//      Copyright (C) 2015 - 2019 Petabridge, LLC <https://petabridge.com>
+// </copyright>
+// -----------------------------------------------------------------------
+
+using System;
 using FsCheck;
 using Microsoft.FSharp.Core;
 
 namespace Akka.Persistence.Extras.Tests
 {
     /// <summary>
-    /// Used to generate <see cref="Arbitrary{a}"/> data for <see cref="IConfirmableMessage"/> types.
+    ///     Used to generate <see cref="Arbitrary{a}" /> data for <see cref="IConfirmableMessage" /> types.
     /// </summary>
     public class ConfirmableGenerators
     {
         public static Arbitrary<IConfirmableMessage> CreateConfirmableMessage()
         {
-            Func<string, long, IConfirmableMessage> combiner = 
+            Func<string, long, IConfirmableMessage> combiner =
                 (senderId, confirmationId) => new ConfirmableMessageEnvelope(confirmationId, senderId, string.Empty);
 
             return Arb.From(Gen.Map2(FuncConvert.FromFunc(combiner),
-                Gen.Elements("a", "b", "c", "d", "e", "f", "g"), // restrict the number of possible senders to something small
+                Gen.Elements("a", "b", "c", "d", "e", "f",
+                    "g"), // restrict the number of possible senders to something small
                 Arb.Default.Int64().Generator.Where(x => x > 0)));
 
             //return Arb.From(Arb.Default.Int64().Generator.Where(x => x > 0)

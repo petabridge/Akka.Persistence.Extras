@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="DeDuplicatingReceiverModelState.cs" company="Petabridge, LLC">
+//      Copyright (C) 2015 - 2019 Petabridge, LLC <https://petabridge.com>
+// </copyright>
+// -----------------------------------------------------------------------
+
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -7,7 +13,8 @@ namespace Akka.Persistence.Extras.Tests.DeDuplication
 {
     public class DeDuplicatingReceiverModelState : IReceiverState
     {
-        public DeDuplicatingReceiverModelState(ImmutableDictionary<string, DateTime> senderLru, ImmutableDictionary<string, ImmutableHashSet<long>> senderIds, DateTime currentTime)
+        public DeDuplicatingReceiverModelState(ImmutableDictionary<string, DateTime> senderLru,
+            ImmutableDictionary<string, ImmutableHashSet<long>> senderIds, DateTime currentTime)
         {
             SenderLru = senderLru;
             SenderIds = senderIds;
@@ -18,8 +25,9 @@ namespace Akka.Persistence.Extras.Tests.DeDuplication
 
         public ImmutableDictionary<string, DateTime> SenderLru { get; private set; }
 
-        public ImmutableDictionary<string, ImmutableHashSet<long>> SenderIds { get; private set; }
+        public ImmutableDictionary<string, ImmutableHashSet<long>> SenderIds { get; }
         public ReceiveOrdering Ordering => ReceiveOrdering.AnyOrder;
+
         public IReceiverState ConfirmProcessing(IConfirmableMessage message)
         {
             UpdateLru(message.SenderId);
@@ -27,8 +35,8 @@ namespace Akka.Persistence.Extras.Tests.DeDuplication
                 ? SenderIds[message.SenderId]
                 : ImmutableHashSet<long>.Empty;
 
-            return new DeDuplicatingReceiverModelState(SenderLru, 
-                SenderIds.SetItem(message.SenderId, buffer.Add(message.ConfirmationId)), 
+            return new DeDuplicatingReceiverModelState(SenderLru,
+                SenderIds.SetItem(message.SenderId, buffer.Add(message.ConfirmationId)),
                 CurrentTime);
         }
 
@@ -40,6 +48,7 @@ namespace Akka.Persistence.Extras.Tests.DeDuplication
         }
 
         public IReadOnlyDictionary<string, DateTime> TrackedSenders => SenderLru;
+
         public (IReceiverState newState, IReadOnlyList<string> prunedSenders) Prune(TimeSpan notUsedSince)
         {
             var targetTime = CurrentTime - notUsedSince;

@@ -1,15 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿// -----------------------------------------------------------------------
+// <copyright file="FakeTimeProvider.cs" company="Petabridge, LLC">
+//      Copyright (C) 2015 - 2019 Petabridge, LLC <https://petabridge.com>
+// </copyright>
+// -----------------------------------------------------------------------
+
+using System;
 using Akka.Actor;
 
 namespace Akka.Persistence.Extras.Tests
 {
     /// <summary>
-    /// INTERNAL API.
+    ///     INTERNAL API.
     /// </summary>
     /// <remarks>
-    /// For testing purposes with <see cref="IReceiverState"/>.
+    ///     For testing purposes with <see cref="IReceiverState" />.
     /// </remarks>
     public class FakeTimeProvider : ITimeProvider
     {

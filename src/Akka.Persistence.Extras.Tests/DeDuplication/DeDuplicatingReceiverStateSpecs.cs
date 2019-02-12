@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------
+// <copyright file="DeDuplicatingReceiverStateSpecs.cs" company="Petabridge, LLC">
+//      Copyright (C) 2015 - 2019 Petabridge, LLC <https://petabridge.com>
+// </copyright>
+// -----------------------------------------------------------------------
+
 using System;
 using System.Collections.Immutable;
 using FluentAssertions;
@@ -17,6 +23,19 @@ namespace Akka.Persistence.Extras.Tests.DeDuplication
             return model.ToProperty();
         }
 
+        [Fact(DisplayName =
+            "UnorderedReceiverState should prune senders who are more recent than the requested prune time")]
+        public void UnorderedReceiverState_should_NOT_prune_newer_senders()
+        {
+            var timeProvider = new FakeTimeProvider(DateTime.UtcNow);
+            var receiverState = new UnorderedReceiverState(timeProvider);
+            receiverState.ConfirmProcessing(new ConfirmableMessageEnvelope(1000L, "foo", "bar"));
+            timeProvider.SetTime(TimeSpan.FromSeconds(10));
+
+            var prune = receiverState.Prune(TimeSpan.FromSeconds(15));
+            prune.prunedSenders.Should().BeEmpty();
+        }
+
         [Fact(DisplayName = "UnorderedReceiverState should prune its older senders correctly")]
         public void UnorderedReceiverState_should_prune_older_senders_correctly()
         {
@@ -27,18 +46,6 @@ namespace Akka.Persistence.Extras.Tests.DeDuplication
 
             var prune = receiverState.Prune(TimeSpan.FromSeconds(5));
             prune.prunedSenders.Should().BeEquivalentTo("foo");
-        }
-
-        [Fact(DisplayName = "UnorderedReceiverState should prune senders who are more recent than the requested prune time")]
-        public void UnorderedReceiverState_should_NOT_prune_newer_senders()
-        {
-            var timeProvider = new FakeTimeProvider(DateTime.UtcNow);
-            var receiverState = new UnorderedReceiverState(timeProvider);
-            receiverState.ConfirmProcessing(new ConfirmableMessageEnvelope(1000L, "foo", "bar"));
-            timeProvider.SetTime(TimeSpan.FromSeconds(10));
-
-            var prune = receiverState.Prune(TimeSpan.FromSeconds(15));
-            prune.prunedSenders.Should().BeEmpty();
         }
     }
 
@@ -53,7 +60,8 @@ namespace Akka.Persistence.Extras.Tests.DeDuplication
 
         public override DeDuplicatingReceiverModelState Model()
         {
-            return new DeDuplicatingReceiverModelState(ImmutableDictionary<string, DateTime>.Empty, ImmutableDictionary<string, ImmutableHashSet<long>>.Empty, StartTime);
+            return new DeDuplicatingReceiverModelState(ImmutableDictionary<string, DateTime>.Empty,
+                ImmutableDictionary<string, ImmutableHashSet<long>>.Empty, StartTime);
         }
     }
 }
