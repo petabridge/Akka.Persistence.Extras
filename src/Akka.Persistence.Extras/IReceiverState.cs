@@ -98,7 +98,7 @@ namespace Akka.Persistence.Extras
         /// </summary>
         private readonly Dictionary<string, DateTime> _trackedLru = new Dictionary<string, DateTime>();
 
-        private readonly ITimeProvider _timeProvider;
+        internal readonly ITimeProvider _timeProvider;
 
         public UnorderedReceiverState() : this(DateTimeOffsetNowTimeProvider.Instance)
         {

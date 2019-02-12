@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using FsCheck;
+using FsCheck.Experimental;
 using Xunit;
 
 namespace Akka.Persistence.Extras.Tests.DeDuplication
@@ -14,9 +16,20 @@ namespace Akka.Persistence.Extras.Tests.DeDuplication
         }
     }
 
-    public class DeDuplicatingReceiverModel : IReceiverState
+    public class DeDuplicatingReceiverState<TReceiverState> : Machine<TReceiverState, DeDuplicatingReceiverModelState>
+        where TReceiverState : IReceiverState
     {
-        public DeDuplicatingReceiverModel(ImmutableDictionary<string, DateTime> senderLru, ImmutableDictionary<string, ImmutableHashSet<long>> senderIds, DateTime currentTime)
+        public override Gen<Operation<TReceiverState, DeDuplicatingReceiverModelState>> Next(DeDuplicatingReceiverModelState obj0)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Arbitrary<Setup<TReceiverState, DeDuplicatingReceiverModelState>> Setup { get; }
+    }
+
+    public class DeDuplicatingReceiverModelState : IReceiverState
+    {
+        public DeDuplicatingReceiverModelState(ImmutableDictionary<string, DateTime> senderLru, ImmutableDictionary<string, ImmutableHashSet<long>> senderIds, DateTime currentTime)
         {
             SenderLru = senderLru;
             SenderIds = senderIds;
@@ -36,7 +49,7 @@ namespace Akka.Persistence.Extras.Tests.DeDuplication
                 ? SenderIds[message.SenderId]
                 : ImmutableHashSet<long>.Empty;
 
-            return new DeDuplicatingReceiverModel(SenderLru, 
+            return new DeDuplicatingReceiverModelState(SenderLru, 
                 SenderIds.SetItem(message.SenderId, buffer.Add(message.ConfirmationId)), 
                 CurrentTime);
         }
@@ -54,13 +67,13 @@ namespace Akka.Persistence.Extras.Tests.DeDuplication
             var targetTime = CurrentTime + notUsedSince;
             var prunedSenderIds = SenderLru.Where(x => x.Value < targetTime).Select(x => x.Key).ToList();
             return (
-                new DeDuplicatingReceiverModel(SenderLru.RemoveRange(prunedSenderIds),
+                new DeDuplicatingReceiverModelState(SenderLru.RemoveRange(prunedSenderIds),
                     SenderIds.RemoveRange(prunedSenderIds), CurrentTime), prunedSenderIds);
         }
 
         public IReceiverState AddTime(TimeSpan additionalTime)
         {
-            return new DeDuplicatingReceiverModel(SenderLru, SenderIds, CurrentTime + additionalTime);
+            return new DeDuplicatingReceiverModelState(SenderLru, SenderIds, CurrentTime + additionalTime);
         }
 
         private void UpdateLru(string senderId)
