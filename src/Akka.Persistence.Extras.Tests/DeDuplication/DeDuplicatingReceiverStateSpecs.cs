@@ -10,7 +10,7 @@ namespace Akka.Persistence.Extras.Tests.DeDuplication
 {
     public class DeDuplicatingReceiverStateSpecs
     {
-        [Property]
+        [Property(MaxTest = 1000)]
         public Property DeDuplicatingReceiverStateModel_should_hold_for_AnyOrderReceiverState()
         {
             var model = new DeDuplicatingReceiverStateModel(new AnyOrderReceiverStateSetup());

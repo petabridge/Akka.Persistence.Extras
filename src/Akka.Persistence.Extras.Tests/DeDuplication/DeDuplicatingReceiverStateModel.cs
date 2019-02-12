@@ -129,7 +129,8 @@ namespace Akka.Persistence.Extras.Tests.DeDuplication
 
             public override bool Pre(DeDuplicatingReceiverModelState model)
             {
-                return model.AlreadyProcessed(_confirmable);
+                return model.SenderIds.ContainsKey(_confirmable.SenderId) &&
+                       model.SenderIds[_confirmable.SenderId].Contains(_confirmable.ConfirmationId);
             }
 
             public override Property Check(IReceiverState actual, DeDuplicatingReceiverModelState model)
@@ -176,7 +177,9 @@ namespace Akka.Persistence.Extras.Tests.DeDuplication
 
             public override bool Pre(DeDuplicatingReceiverModelState model)
             {
-                return !model.AlreadyProcessed(_confirmable);
+                var hasKey = model.SenderIds.ContainsKey(_confirmable.SenderId);
+                var hasConfirmId = hasKey && model.SenderIds[_confirmable.SenderId].Contains(_confirmable.ConfirmationId);
+                return !(hasKey && hasConfirmId);
             }
 
             public override Property Check(IReceiverState actual, DeDuplicatingReceiverModelState model)
