@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
+using Akka.Actor;
 using Petabridge.Collections;
 
 namespace Akka.Persistence.Extras
@@ -72,14 +75,15 @@ namespace Akka.Persistence.Extras
         (IReceiverState newState, IReadOnlyList<string> prunedSenders) Prune(TimeSpan notUsedSince);
     }
 
+    /// <inheritdoc />
     /// <summary>
-    /// <see cref="IReceiverState"/> for <see cref="DeDuplicatingReceiveActor"/>s that are
-    /// processing messages with <see cref="ReceiveOrdering.AnyOrder"/>
+    /// <see cref="T:Akka.Persistence.Extras.IReceiverState" /> for <see cref="T:Akka.Persistence.Extras.DeDuplicatingReceiveActor" />s that are
+    /// processing messages with <see cref="F:Akka.Persistence.Extras.ReceiveOrdering.AnyOrder" />
     /// </summary>
     /// <remarks>
-    /// The implication of <see cref="ReceiveOrdering.AnyOrder"/> is that we can't rely on the
+    /// The implication of <see cref="F:Akka.Persistence.Extras.ReceiveOrdering.AnyOrder" /> is that we can't rely on the
     /// sequence numbers for any individual sender being monotonic, therefore we have to store
-    /// a finite-length array of them and check to see if the <see cref="IConfirmableMessage.ConfirmationId"/>
+    /// a finite-length array of them and check to see if the <see cref="P:Akka.Persistence.Extras.IConfirmableMessage.ConfirmationId" />
     /// has already been handled by this actor.
     /// </remarks>
     public sealed class UnorderedReceiverState : IReceiverState
@@ -87,35 +91,75 @@ namespace Akka.Persistence.Extras
         /// <summary>
         /// Tracks the sequence numbers
         /// </summary>
-        private readonly Dictionary<string, ICircularBuffer<long>> _trackedIds;
+        private readonly Dictionary<string, ICircularBuffer<long>> _trackedIds = new Dictionary<string, ICircularBuffer<long>>();
 
         /// <summary>
         /// Tracks the last recently updated LRU time for each sender.
         /// </summary>
-        private readonly Dictionary<string, DateTime> _trackedLru;
+        private readonly Dictionary<string, DateTime> _trackedLru = new Dictionary<string, DateTime>();
 
-        public UnorderedReceiverState(int maxConfirmationsPerSender)
+        private readonly ITimeProvider _timeProvider;
+
+        public UnorderedReceiverState() : this(DateTimeOffsetNowTimeProvider.Instance)
         {
-            MaxConfirmationsPerSender = maxConfirmationsPerSender;
         }
 
+        public UnorderedReceiverState(ITimeProvider timeProvider, int maxConfirmationsPerSender = DefaultMaxConfirmationsPerSender)
+        {
+            MaxConfirmationsPerSender = maxConfirmationsPerSender;
+            _timeProvider = timeProvider;
+        }
+
+        /// <summary>
+        /// Determines the size of the circular buffer we're going to use to store the out-of-order confirmations
+        /// </summary>
         public int MaxConfirmationsPerSender { get; }
+
+        /// <summary>
+        /// Determines the size of the circular buffer we're going to use to store the out-of-order confirmations
+        /// </summary>
+        public const int DefaultMaxConfirmationsPerSender = 1000;
 
         public ReceiveOrdering Ordering => ReceiveOrdering.AnyOrder;
         public IReceiverState ConfirmProcessing(IConfirmableMessage message)
         {
-            throw new NotImplementedException();
+            _trackedLru[message.SenderId] = _timeProvider.Now.UtcDateTime;
+
+            // in the event that this is the first time we've seen this SenderId
+            if (!_trackedIds.ContainsKey(message.SenderId))
+            {
+                _trackedIds[message.SenderId] = new CircularBuffer<long>(MaxConfirmationsPerSender);
+            }
+
+            // track the message id
+            _trackedIds[message.SenderId].Enqueue(message.ConfirmationId);
+
+            return this;
         }
 
         public bool AlreadyProcessed(IConfirmableMessage message)
         {
-            throw new NotImplementedException();
+            // TODO: performance optimize lookups in CircularBuffer
+            return _trackedIds.ContainsKey(message.SenderId) 
+                && _trackedIds[message.SenderId].Contains(message.ConfirmationId);
         }
 
-        public IReadOnlyDictionary<string, DateTime> TrackedSenders { get; }
+        public IReadOnlyDictionary<string, DateTime> TrackedSenders => _trackedLru.ToImmutableDictionary();
+
         public (IReceiverState newState, IReadOnlyList<string> prunedSenders) Prune(TimeSpan notUsedSince)
         {
-            throw new NotImplementedException();
+            var pruneTime = _timeProvider.Now - notUsedSince;
+
+            // Get the set of IDs
+            var senderIds = new List<string>();
+            foreach (var senderId in _trackedLru.Where(x => x.Value <= pruneTime).Select(x => x.Key).ToList())
+            {
+                senderIds.Add(senderId);
+                _trackedIds.Remove(senderId);
+                _trackedLru.Remove(senderId);
+            }
+
+            return (this, senderIds);
         }
     }
 }
