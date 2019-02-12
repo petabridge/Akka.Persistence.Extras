@@ -150,7 +150,7 @@ namespace Akka.Persistence.Extras
 
         public (IReceiverState newState, IReadOnlyList<string> prunedSenders) Prune(TimeSpan notUsedSince)
         {
-            var pruneTime = _timeProvider.Now - notUsedSince;
+            var pruneTime = (_timeProvider.Now.UtcDateTime - notUsedSince);
 
             // Get the set of IDs
             var senderIds = new List<string>();

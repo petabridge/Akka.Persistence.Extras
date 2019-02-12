@@ -16,9 +16,12 @@ namespace Akka.Persistence.Extras.Tests
             Func<string, long, IConfirmableMessage> combiner = 
                 (senderId, confirmationId) => new ConfirmableMessageEnvelope(confirmationId, senderId, string.Empty);
 
-            return Arb.From(Gen.Map2(FuncConvert.FromFunc(combiner), 
-                Arb.Default.NonWhiteSpaceString().Generator.Select(x => x.Get),
+            return Arb.From(Gen.Map2(FuncConvert.FromFunc(combiner),
+                Gen.Elements("a", "b", "c", "d", "e", "f", "g"), // restrict the number of possible senders to something small
                 Arb.Default.Int64().Generator.Where(x => x > 0)));
+
+            //return Arb.From(Arb.Default.Int64().Generator.Where(x => x > 0)
+            //    .Select(x => (IConfirmableMessage)new ConfirmableMessageEnvelope(x, "foo", string.Empty)));
         }
     }
 }
