@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Petabridge.Collections;
 
 namespace Akka.Persistence.Extras
 {
@@ -69,5 +70,52 @@ namespace Akka.Persistence.Extras
         /// used to track them for other senders who might be doing work.
         /// </remarks>
         (IReceiverState newState, IReadOnlyList<string> prunedSenders) Prune(TimeSpan notUsedSince);
+    }
+
+    /// <summary>
+    /// <see cref="IReceiverState"/> for <see cref="DeDuplicatingReceiveActor"/>s that are
+    /// processing messages with <see cref="ReceiveOrdering.AnyOrder"/>
+    /// </summary>
+    /// <remarks>
+    /// The implication of <see cref="ReceiveOrdering.AnyOrder"/> is that we can't rely on the
+    /// sequence numbers for any individual sender being monotonic, therefore we have to store
+    /// a finite-length array of them and check to see if the <see cref="IConfirmableMessage.ConfirmationId"/>
+    /// has already been handled by this actor.
+    /// </remarks>
+    public sealed class UnorderedReceiverState : IReceiverState
+    {
+        /// <summary>
+        /// Tracks the sequence numbers
+        /// </summary>
+        private readonly Dictionary<string, ICircularBuffer<long>> _trackedIds;
+
+        /// <summary>
+        /// Tracks the last recently updated LRU time for each sender.
+        /// </summary>
+        private readonly Dictionary<string, DateTime> _trackedLru;
+
+        public UnorderedReceiverState(int maxConfirmationsPerSender)
+        {
+            MaxConfirmationsPerSender = maxConfirmationsPerSender;
+        }
+
+        public int MaxConfirmationsPerSender { get; }
+
+        public ReceiveOrdering Ordering => ReceiveOrdering.AnyOrder;
+        public IReceiverState ConfirmProcessing(IConfirmableMessage message)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool AlreadyProcessed(IConfirmableMessage message)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IReadOnlyDictionary<string, DateTime> TrackedSenders { get; }
+        public (IReceiverState newState, IReadOnlyList<string> prunedSenders) Prune(TimeSpan notUsedSince)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
