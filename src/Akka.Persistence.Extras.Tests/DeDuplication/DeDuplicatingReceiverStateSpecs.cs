@@ -27,9 +27,10 @@ namespace Akka.Persistence.Extras.Tests.DeDuplication
             "UnorderedReceiverState should prune senders who are more recent than the requested prune time")]
         public void UnorderedReceiverState_should_NOT_prune_newer_senders()
         {
+            var confirmable = new ConfirmableMessageEnvelope(1L, "foo", "bar");
             var timeProvider = new FakeTimeProvider(DateTime.UtcNow);
             var receiverState = new UnorderedReceiverState(timeProvider);
-            receiverState.ConfirmProcessing(new ConfirmableMessageEnvelope(1000L, "foo", "bar"));
+            receiverState.ConfirmProcessing(confirmable.ConfirmationId, confirmable.SenderId);
             timeProvider.SetTime(TimeSpan.FromSeconds(10));
 
             var prune = receiverState.Prune(TimeSpan.FromSeconds(15));
@@ -39,9 +40,10 @@ namespace Akka.Persistence.Extras.Tests.DeDuplication
         [Fact(DisplayName = "UnorderedReceiverState should prune its older senders correctly")]
         public void UnorderedReceiverState_should_prune_older_senders_correctly()
         {
+            var confirmable = new ConfirmableMessageEnvelope(1L, "foo", "bar");
             var timeProvider = new FakeTimeProvider(DateTime.UtcNow);
             var receiverState = new UnorderedReceiverState(timeProvider);
-            receiverState.ConfirmProcessing(new ConfirmableMessageEnvelope(1000L, "foo", "bar"));
+            receiverState.ConfirmProcessing(confirmable.ConfirmationId, confirmable.SenderId);
             timeProvider.SetTime(TimeSpan.FromSeconds(10));
 
             var prune = receiverState.Prune(TimeSpan.FromSeconds(5));

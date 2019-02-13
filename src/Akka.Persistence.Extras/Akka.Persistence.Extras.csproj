@@ -4,12 +4,12 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Description>Your description here.</Description>
+    <Description>Additional features and tools for the Akka.Persistence library.</Description>
   </PropertyGroup>
 
 
   <ItemGroup>
-    <PackageReference Include="Akka.Persistence" Version="1.3.11" />
+    <PackageReference Include="Akka.Persistence" Version="$(AkkaVersion)" />
     <PackageReference Include="Petabridge.Collections" Version="1.0.0" />
   </ItemGroup>
 
