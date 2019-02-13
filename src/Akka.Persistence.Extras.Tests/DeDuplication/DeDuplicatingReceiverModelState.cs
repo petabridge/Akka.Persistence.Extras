@@ -28,23 +28,23 @@ namespace Akka.Persistence.Extras.Tests.DeDuplication
         public ImmutableDictionary<string, ImmutableHashSet<long>> SenderIds { get; }
         public ReceiveOrdering Ordering => ReceiveOrdering.AnyOrder;
 
-        public IReceiverState ConfirmProcessing(IConfirmableMessage message)
+        public IReceiverState ConfirmProcessing(long confirmationId, string senderId)
         {
-            UpdateLru(message.SenderId);
-            var buffer = SenderIds.ContainsKey(message.SenderId)
-                ? SenderIds[message.SenderId]
+            UpdateLru(senderId);
+            var buffer = SenderIds.ContainsKey(senderId)
+                ? SenderIds[senderId]
                 : ImmutableHashSet<long>.Empty;
 
             return new DeDuplicatingReceiverModelState(SenderLru,
-                SenderIds.SetItem(message.SenderId, buffer.Add(message.ConfirmationId)),
+                SenderIds.SetItem(senderId, buffer.Add(confirmationId)),
                 CurrentTime);
         }
 
-        public bool AlreadyProcessed(IConfirmableMessage message)
+        public bool AlreadyProcessed(long confirmationId, string senderId)
         {
-            UpdateLru(message.SenderId);
-            return SenderIds.ContainsKey(message.SenderId) &&
-                   SenderIds[message.SenderId].Contains(message.ConfirmationId);
+            UpdateLru(senderId);
+            return SenderIds.ContainsKey(senderId) &&
+                   SenderIds[senderId].Contains(confirmationId);
         }
 
         public IReadOnlyDictionary<string, DateTime> TrackedSenders => SenderLru;

@@ -53,16 +53,18 @@ namespace Akka.Persistence.Extras
         /// <summary>
         ///     Confirm that we've completed processing of a message from a specific sender.
         /// </summary>
-        /// <param name="message">The message being processed.</param>
+        /// <param name="confirmationId">The correlation id for this specific message.</param>
+        /// <param name="senderId">The identity of the sender.</param>
         /// <returns>A new copy of the <see cref="IReceiverState" /> or possibly the same. Varies by implementation.</returns>
-        IReceiverState ConfirmProcessing(IConfirmableMessage message);
+        IReceiverState ConfirmProcessing(long confirmationId, string senderId);
 
         /// <summary>
         ///     Check to see if this message has already been processed or not.
         /// </summary>
-        /// <param name="message">The message we might process.</param>
+        /// <param name="confirmationId">The correlation id for this specific message.</param>
+        /// <param name="senderId">The identity of the sender.</param>
         /// <returns><c>true</c> if the message has been processed before. <c>false</c> otherwise.</returns>
-        bool AlreadyProcessed(IConfirmableMessage message);
+        bool AlreadyProcessed(long confirmationId, string senderId);
 
         /// <summary>
         ///     Used to help reduce memory pressure on systems that have a large number of senders.
@@ -131,27 +133,27 @@ namespace Akka.Persistence.Extras
 
         public ReceiveOrdering Ordering => ReceiveOrdering.AnyOrder;
 
-        public IReceiverState ConfirmProcessing(IConfirmableMessage message)
+        public IReceiverState ConfirmProcessing(long confirmationId, string senderId)
         {
-            UpdateLru(message.SenderId);
+            UpdateLru(senderId);
 
             // in the event that this is the first time we've seen this SenderId
-            if (!_trackedIds.ContainsKey(message.SenderId))
-                _trackedIds[message.SenderId] = new CircularBuffer<long>(MaxConfirmationsPerSender);
+            if (!_trackedIds.ContainsKey(senderId))
+                _trackedIds[senderId] = new CircularBuffer<long>(MaxConfirmationsPerSender);
 
             // track the message id
-            _trackedIds[message.SenderId].Enqueue(message.ConfirmationId);
+            _trackedIds[senderId].Enqueue(confirmationId);
 
             return this;
         }
 
-        public bool AlreadyProcessed(IConfirmableMessage message)
+        public bool AlreadyProcessed(long confirmationId, string senderId)
         {
-            UpdateLru(message.SenderId);
+            UpdateLru(senderId);
 
             // TODO: performance optimize lookups in CircularBuffer
-            return _trackedIds.ContainsKey(message.SenderId)
-                   && _trackedIds[message.SenderId].Contains(message.ConfirmationId);
+            return _trackedIds.ContainsKey(senderId)
+                   && _trackedIds[senderId].Contains(confirmationId);
         }
 
         public IReadOnlyDictionary<string, DateTime> TrackedSenders => _trackedLru.ToImmutableDictionary();

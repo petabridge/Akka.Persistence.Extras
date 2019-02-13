@@ -14,6 +14,7 @@ namespace Akka.Persistence.Extras.Tests.DeDuplication
             var setting = new DeDuplicatingReceiverSettings();
             setting.PruneInterval.Should().Be(TimeSpan.FromMinutes(30));
             setting.BufferSizePerSender.Should().Be(1000);
+            setting.TakeSnapshotEveryNMessages.Should().Be(100);
             setting.ReceiverType.Should().Be(ReceiveOrdering.AnyOrder);
         }
 
@@ -32,7 +33,7 @@ namespace Akka.Persistence.Extras.Tests.DeDuplication
 
             Action createSettings = () =>
             {
-                var settings = new DeDuplicatingReceiverSettings(ReceiveOrdering.AnyOrder, pruneInterval, 1000);
+                var settings = new DeDuplicatingReceiverSettings(ReceiveOrdering.AnyOrder, pruneInterval, 1000, 100);
             };
 
             if (shouldThrow)
@@ -55,7 +56,7 @@ namespace Akka.Persistence.Extras.Tests.DeDuplication
 
             Action createSettings = () =>
             {
-                var settings = new DeDuplicatingReceiverSettings(ReceiveOrdering.AnyOrder, TimeSpan.FromMinutes(30), bufferSize);
+                var settings = new DeDuplicatingReceiverSettings(ReceiveOrdering.AnyOrder, TimeSpan.FromMinutes(30), bufferSize, 100);
             };
 
             if (shouldThrow)

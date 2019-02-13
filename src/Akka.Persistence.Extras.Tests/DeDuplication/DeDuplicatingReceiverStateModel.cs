@@ -145,7 +145,7 @@ namespace Akka.Persistence.Extras.Tests.DeDuplication
 
             public override Property Check(IReceiverState actual, DeDuplicatingReceiverModelState model)
             {
-                var actualHasProcessedBefore = actual.AlreadyProcessed(_confirmable).ToProperty()
+                var actualHasProcessedBefore = actual.AlreadyProcessed(_confirmable.ConfirmationId, _confirmable.SenderId).ToProperty()
                     .Label(
                         $"Should have processed message [{_confirmable.SenderId}-{_confirmable.ConfirmationId}] before");
 
@@ -161,7 +161,7 @@ namespace Akka.Persistence.Extras.Tests.DeDuplication
 
             public override DeDuplicatingReceiverModelState Run(DeDuplicatingReceiverModelState model)
             {
-                return (DeDuplicatingReceiverModelState) model.ConfirmProcessing(_confirmable);
+                return (DeDuplicatingReceiverModelState) model.ConfirmProcessing(_confirmable.ConfirmationId, _confirmable.SenderId);
             }
 
             public override string ToString()
@@ -195,11 +195,11 @@ namespace Akka.Persistence.Extras.Tests.DeDuplication
 
             public override Property Check(IReceiverState actual, DeDuplicatingReceiverModelState model)
             {
-                var actualHasProcessedBefore = (!actual.AlreadyProcessed(_confirmable)).ToProperty()
+                var actualHasProcessedBefore = (!actual.AlreadyProcessed(_confirmable.ConfirmationId, _confirmable.SenderId)).ToProperty()
                     .Label(
                         $"Should NOT have processed message [{_confirmable.SenderId}-{_confirmable.ConfirmationId}] before");
-                actual.ConfirmProcessing(_confirmable);
-                var actualHasProcessedAfter = actual.AlreadyProcessed(_confirmable).ToProperty()
+                actual.ConfirmProcessing(_confirmable.ConfirmationId, _confirmable.SenderId);
+                var actualHasProcessedAfter = actual.AlreadyProcessed(_confirmable.ConfirmationId, _confirmable.SenderId).ToProperty()
                     .Label(
                         $"Should have processed message [{_confirmable.SenderId}-{_confirmable.ConfirmationId}] after");
 
@@ -215,7 +215,7 @@ namespace Akka.Persistence.Extras.Tests.DeDuplication
 
             public override DeDuplicatingReceiverModelState Run(DeDuplicatingReceiverModelState model)
             {
-                return (DeDuplicatingReceiverModelState) model.ConfirmProcessing(_confirmable);
+                return (DeDuplicatingReceiverModelState) model.ConfirmProcessing(_confirmable.ConfirmationId, _confirmable.SenderId);
             }
 
             public override string ToString()
