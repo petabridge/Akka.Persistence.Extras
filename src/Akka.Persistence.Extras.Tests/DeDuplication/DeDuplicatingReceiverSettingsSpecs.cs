@@ -44,5 +44,28 @@ namespace Akka.Persistence.Extras.Tests.DeDuplication
                 createSettings.Should().NotThrow();
             }
         }
+
+        [Theory]
+        [InlineData(0, true)]
+        [InlineData(1, true)]
+        [InlineData(-1, true)]
+        [InlineData(10, false)]
+        public void DeDuplicatingReceiverSettings_should_reject_illegal_BufferSizeValues(int bufferSize, bool shouldThrow)
+        {
+
+            Action createSettings = () =>
+            {
+                var settings = new DeDuplicatingReceiverSettings(ReceiveOrdering.AnyOrder, TimeSpan.FromMinutes(30), bufferSize);
+            };
+
+            if (shouldThrow)
+            {
+                createSettings.Should().Throw<ArgumentOutOfRangeException>();
+            }
+            else
+            {
+                createSettings.Should().NotThrow();
+            }
+        }
     }
 }
