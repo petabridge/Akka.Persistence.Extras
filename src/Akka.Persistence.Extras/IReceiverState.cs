@@ -32,7 +32,7 @@ namespace Akka.Persistence.Extras
         ///     Strict ordering. Messages are sent and confirmed one at a time. Correlation IDs
         ///     always increase monotonically.
         /// </summary>
-        StrictOrdering
+        StrictOrder
     }
 
     /// <summary>
