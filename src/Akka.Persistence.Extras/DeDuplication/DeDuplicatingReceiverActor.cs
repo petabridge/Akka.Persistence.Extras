@@ -170,10 +170,7 @@ namespace Akka.Persistence.Extras
         private void BuiltInRecovers()
         {
             // Confirming a single message from a single sender
-            Recover<Confirmation>(c =>
-            {
-                _receiverState.ConfirmProcessing(c.ConfirmationId, c.SenderId);
-            });
+            Recover<Confirmation>(c => { _receiverState.ConfirmProcessing(c.ConfirmationId, c.SenderId); });
             Recover<SnapshotOffer>(snapshotOffer =>
             {
                 if (snapshotOffer.Snapshot is IReceiverStateSnapshot receiverStateSnapshot)

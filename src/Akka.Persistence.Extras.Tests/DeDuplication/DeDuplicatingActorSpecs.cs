@@ -1,7 +1,12 @@
-﻿using System;
+﻿// -----------------------------------------------------------------------
+// <copyright file="DeDuplicatingActorSpecs.cs" company="Petabridge, LLC">
+//      Copyright (C) 2015 - 2019 Petabridge, LLC <https://petabridge.com>
+// </copyright>
+// -----------------------------------------------------------------------
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Akka.Actor;
 using FluentAssertions;
 using Xunit;
@@ -9,9 +14,57 @@ using Xunit.Abstractions;
 
 namespace Akka.Persistence.Extras.Tests.DeDuplication
 {
-
     public class TestDeDuplicatingActor : DeDuplicatingReceiveActor
     {
+        public TestDeDuplicatingActor() : this(new DeDuplicatingReceiverSettings(), null)
+        {
+        }
+
+        public TestDeDuplicatingActor(DeDuplicatingReceiverSettings settings, string persistenceId) : base(settings)
+        {
+            PersistenceId = persistenceId ?? Uri.EscapeUriString(Self.Path.ToStringWithoutAddress());
+
+            Command<ConfirmableMsg>(c =>
+            {
+                ReceivedMessages.Add(c.Msg);
+                ConfirmAndReply(c);
+            });
+
+            Command<string>(str => str.Equals("crash"), str => { Crash(); });
+
+            Command<string>(str => str.Equals("canConfirm"), str => { Sender.Tell(IsCurrentMessageConfirmable); });
+
+            Command<string>(str =>
+            {
+                if (IsCurrentMessageConfirmable)
+                {
+                    ReceivedMessages.Add(str);
+                    ConfirmAndReply(str);
+                }
+            });
+        }
+
+        public List<string> ReceivedMessages { get; } = new List<string>();
+
+        public override string PersistenceId { get; }
+
+        private void Crash()
+        {
+            throw new ApplicationException("HALP");
+        }
+
+        protected override object CreateConfirmationReplyMessage(long confirmationId, string senderId,
+            object originalMessage)
+        {
+            switch (originalMessage)
+            {
+                case ConfirmableMsg msg:
+                    return new ReplyMessage(confirmationId, senderId, msg.Msg);
+                default:
+                    return new ReplyMessage(confirmationId, senderId, originalMessage);
+            }
+        }
+
         public class ConfirmableMsg : IConfirmableMessage
         {
             public ConfirmableMsg(long confirmationId, string senderId, string msg)
@@ -21,10 +74,10 @@ namespace Akka.Persistence.Extras.Tests.DeDuplication
                 Msg = msg;
             }
 
+            public string Msg { get; }
+
             public long ConfirmationId { get; }
             public string SenderId { get; }
-
-            public string Msg { get; }
         }
 
         public class ReplyMessage
@@ -42,80 +95,14 @@ namespace Akka.Persistence.Extras.Tests.DeDuplication
 
             public object OriginalMessage { get; }
         }
-
-        public List<string> ReceivedMessages { get; } = new List<string>();
-
-        public TestDeDuplicatingActor() : this(new DeDuplicatingReceiverSettings(), null) { }
-
-        public TestDeDuplicatingActor(DeDuplicatingReceiverSettings settings, string persistenceId) : base(settings)
-        {
-            PersistenceId = persistenceId ?? Uri.EscapeUriString(Self.Path.ToStringWithoutAddress());
-
-            Command<ConfirmableMsg>(c =>
-            {
-                ReceivedMessages.Add(c.Msg);
-                ConfirmAndReply(c);
-            });
-
-            Command<string>(str => str.Equals("crash"), str =>
-            {
-                Crash();
-            });
-
-            Command<string>(str => str.Equals("canConfirm"), str =>
-            {
-                Sender.Tell(IsCurrentMessageConfirmable);
-            });
-
-            Command<string>(str =>
-            {
-                if (IsCurrentMessageConfirmable)
-                {
-                    ReceivedMessages.Add(str);
-                    ConfirmAndReply(str);
-                }
-            });
-        }
-
-        private void Crash()
-        {
-            throw new ApplicationException("HALP");
-        }
-
-        public override string PersistenceId { get; }
-        protected override object CreateConfirmationReplyMessage(long confirmationId, string senderId, object originalMessage)
-        {
-            switch (originalMessage)
-            {
-                case ConfirmableMsg msg:
-                    return new ReplyMessage(confirmationId, senderId, msg.Msg);
-                default:
-                    return new ReplyMessage(confirmationId, senderId, originalMessage);
-            }
-            
-        }
     }
 
     public class DeDuplicatingActorSpecs : TestKit.Xunit2.TestKit
     {
         public DeDuplicatingActorSpecs(ITestOutputHelper output)
             : base("akka.loglevel = DEBUG" + Environment.NewLine +
-                   "akka.test.timefactor = 10.0",output: output) { }
-
-        [Fact(DisplayName = "DeDuplicatingActor should handle non-IConfirmable messages normally")]
-        public void DeDuplicatingActor_should_handle_nonConfirmable_message()
+                   "akka.test.timefactor = 10.0", output)
         {
-            var dedup = Sys.ActorOf(Props.Create(() => new TestDeDuplicatingActor()));
-            dedup.Tell("canConfirm");
-            ExpectMsg<bool>().Should().BeFalse();
-        }
-
-        [Fact(DisplayName = "DeDuplicatingActor should handle confirmable messages normally")]
-        public void DeDuplicatingActor_should_handle_confirmable_message()
-        {
-            var dedup = Sys.ActorOf(Props.Create(() => new TestDeDuplicatingActor()));
-            dedup.Tell(new ConfirmableMessageEnvelope(100L, "fakeNews", "canConfirm"));
-            ExpectMsg<bool>().Should().BeTrue();
         }
 
         [Fact(DisplayName = "A DeDuplicatingActor should confirm a message the first time it's " +
@@ -145,6 +132,22 @@ namespace Akka.Persistence.Extras.Tests.DeDuplication
             dedup.UnderlyingActor.ReceivedMessages.Count.Should().Be(1);
         }
 
+        [Fact(DisplayName = "DeDuplicatingActor should handle confirmable messages normally")]
+        public void DeDuplicatingActor_should_handle_confirmable_message()
+        {
+            var dedup = Sys.ActorOf(Props.Create(() => new TestDeDuplicatingActor()));
+            dedup.Tell(new ConfirmableMessageEnvelope(100L, "fakeNews", "canConfirm"));
+            ExpectMsg<bool>().Should().BeTrue();
+        }
+
+        [Fact(DisplayName = "DeDuplicatingActor should handle non-IConfirmable messages normally")]
+        public void DeDuplicatingActor_should_handle_nonConfirmable_message()
+        {
+            var dedup = Sys.ActorOf(Props.Create(() => new TestDeDuplicatingActor()));
+            dedup.Tell("canConfirm");
+            ExpectMsg<bool>().Should().BeFalse();
+        }
+
         [Fact(DisplayName = "A DeDuplicatingActor should be able to recover its prior state upon crashing" +
                             "and restarting.")]
         public void DeDuplicatingActor_should_recover_prior_deduping_state()
@@ -168,10 +171,7 @@ namespace Akka.Persistence.Extras.Tests.DeDuplication
             var msgCount = 120;
 
             // should be enough to generate 1 snapshot and 20 additional journal msgs
-            foreach (var seqNo in Enumerable.Range(0, msgCount).Select(x => (long) x))
-            {
-                dedup.Tell(CreateNewMsg(seqNo));
-            }
+            foreach (var seqNo in Enumerable.Range(0, msgCount).Select(x => (long) x)) dedup.Tell(CreateNewMsg(seqNo));
 
             var confirmations = ReceiveN(msgCount);
             long currentMsgId = 0;
@@ -187,11 +187,8 @@ namespace Akka.Persistence.Extras.Tests.DeDuplication
             AwaitCondition(() => dedup.UnderlyingActor.SnapshotSequenceNr > 0);
 
             // time to crash the actor
-            EventFilter.Exception<ApplicationException>(message: "HALP").ExpectOne(() =>
-            {
-                dedup.Tell("crash");
-            });
-            
+            EventFilter.Exception<ApplicationException>("HALP").ExpectOne(() => { dedup.Tell("crash"); });
+
             // validate that the actor's user-defined state is fresh
             AwaitCondition(() => dedup.UnderlyingActor.ReceivedMessages.Count == 0);
 
