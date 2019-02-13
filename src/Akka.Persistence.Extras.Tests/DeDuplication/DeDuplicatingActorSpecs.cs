@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Akka.Actor;
 using FluentAssertions;
@@ -98,7 +99,8 @@ namespace Akka.Persistence.Extras.Tests.DeDuplication
     public class DeDuplicatingActorSpecs : TestKit.Xunit2.TestKit
     {
         public DeDuplicatingActorSpecs(ITestOutputHelper output)
-            : base("akka.loglevel = DEBUG",output: output) { }
+            : base("akka.loglevel = DEBUG" + Environment.NewLine +
+                   "akka.test.timefactor = 10.0",output: output) { }
 
         [Fact(DisplayName = "DeDuplicatingActor should handle non-IConfirmable messages normally")]
         public void DeDuplicatingActor_should_handle_nonConfirmable_message()
@@ -141,6 +143,65 @@ namespace Akka.Persistence.Extras.Tests.DeDuplication
             reply2.SenderId.Should().Be(confirmableMessage.SenderId);
             reply2.OriginalMessage.Should().Be(confirmableMessage.Msg);
             dedup.UnderlyingActor.ReceivedMessages.Count.Should().Be(1);
+        }
+
+        [Fact(DisplayName = "A DeDuplicatingActor should be able to recover its prior state upon crashing" +
+                            "and restarting.")]
+        public void DeDuplicatingActor_should_recover_prior_deduping_state()
+        {
+            var dedup = ActorOfAsTestActorRef<TestDeDuplicatingActor>(Props.Create(() => new TestDeDuplicatingActor()));
+
+            ConfirmableMessageEnvelope CreateNewMsg(long seqNo)
+            {
+                return new ConfirmableMessageEnvelope(seqNo, "fuber", "no" + seqNo);
+            }
+
+            void ShouldConfirm(long seqNo, object rcvdMsg)
+            {
+                rcvdMsg.Should().BeOfType<TestDeDuplicatingActor.ReplyMessage>();
+                var replyMsg = (TestDeDuplicatingActor.ReplyMessage) rcvdMsg;
+
+                replyMsg.ConfirmationId.Should().Be(seqNo);
+                replyMsg.SenderId.Should().Be("fuber");
+            }
+
+            var msgCount = 120;
+
+            // should be enough to generate 1 snapshot and 20 additional journal msgs
+            foreach (var seqNo in Enumerable.Range(0, msgCount).Select(x => (long) x))
+            {
+                dedup.Tell(CreateNewMsg(seqNo));
+            }
+
+            var confirmations = ReceiveN(msgCount);
+            long currentMsgId = 0;
+            foreach (var c in confirmations)
+            {
+                ShouldConfirm(currentMsgId, c);
+                currentMsgId++;
+            }
+
+            dedup.UnderlyingActor.ReceivedMessages.Count.Should().Be(msgCount);
+
+            // validate that the snapshot has been saved
+            AwaitCondition(() => dedup.UnderlyingActor.SnapshotSequenceNr > 0);
+
+            // time to crash the actor
+            EventFilter.Exception<ApplicationException>(message: "HALP").ExpectOne(() =>
+            {
+                dedup.Tell("crash");
+            });
+            
+            // validate that the actor's user-defined state is fresh
+            AwaitCondition(() => dedup.UnderlyingActor.ReceivedMessages.Count == 0);
+
+            // send the actor a duplicate
+            dedup.Tell(CreateNewMsg(1L));
+            var reply = ExpectMsg<TestDeDuplicatingActor.ReplyMessage>();
+            reply.ConfirmationId.Should().Be(1L);
+
+            // validate that the state was not modified (because: duplicate)
+            dedup.UnderlyingActor.ReceivedMessages.Count.Should().Be(0);
         }
     }
 }

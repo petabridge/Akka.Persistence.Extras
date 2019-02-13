@@ -170,7 +170,10 @@ namespace Akka.Persistence.Extras
         private void BuiltInRecovers()
         {
             // Confirming a single message from a single sender
-            Recover<Confirmation>(c => { _receiverState.ConfirmProcessing(c.ConfirmationId, c.SenderId); });
+            Recover<Confirmation>(c =>
+            {
+                _receiverState.ConfirmProcessing(c.ConfirmationId, c.SenderId);
+            });
             Recover<SnapshotOffer>(snapshotOffer =>
             {
                 if (snapshotOffer.Snapshot is IReceiverState receiverState)
@@ -274,7 +277,8 @@ namespace Akka.Persistence.Extras
             // Persist the current confirmation state
             Persist(new Confirmation(CurrentConfirmationId.Value, CurrentSenderId), confirmation =>
             {
-                if (LastSequenceNr % Settings.TakeSnapshotEveryNMessages == 0) SaveSnapshot(_receiverState);
+                if (LastSequenceNr % Settings.TakeSnapshotEveryNMessages == 0)
+                    SaveSnapshot(_receiverState);
             });
         }
 
