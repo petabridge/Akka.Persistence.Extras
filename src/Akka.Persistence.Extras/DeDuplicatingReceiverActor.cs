@@ -12,23 +12,23 @@ namespace Akka.Persistence.Extras
     /// The settings used to configure how the <see cref="DeDuplicatingReceiveActor"/> will
     /// process duplicates of messages and how it will configure its state.
     /// </summary>
-    public sealed class DeDuplicatingActorSettings
+    public sealed class DeDuplicatingReceiverSettings
     {
         public const int DefaultBufferSizePerSender = 1000;
 
         public static readonly TimeSpan DefaultPruneInterval = TimeSpan.FromMinutes(30);
 
         /// <summary>
-        /// Creates a default <see cref="DeDuplicatingActorSettings"/> with the following values:
+        /// Creates a default <see cref="DeDuplicatingReceiverSettings"/> with the following values:
         ///
         /// <see cref="ReceiverType"/> = <see cref="ReceiveOrdering.AnyOrder"/>
         /// <see cref="PruneInterval"/> = 30m
         /// <see cref="BufferSizePerSender"/> = 1000
         /// </summary>
-        public DeDuplicatingActorSettings() 
+        public DeDuplicatingReceiverSettings() 
             : this(ReceiveOrdering.AnyOrder, DefaultPruneInterval, DefaultBufferSizePerSender) { }
 
-        public DeDuplicatingActorSettings(ReceiveOrdering receiverType, TimeSpan pruneInterval, int bufferSizePerSender)
+        public DeDuplicatingReceiverSettings(ReceiveOrdering receiverType, TimeSpan pruneInterval, int bufferSizePerSender)
         {
             ReceiverType = receiverType;
             PruneInterval = pruneInterval;
