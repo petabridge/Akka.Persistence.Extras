@@ -100,8 +100,8 @@ namespace Akka.Persistence.Extras.Tests.DeDuplication
     public class DeDuplicatingActorSpecs : TestKit.Xunit2.TestKit
     {
         public DeDuplicatingActorSpecs(ITestOutputHelper output)
-            : base("akka.loglevel = DEBUG" + Environment.NewLine +
-                   "akka.test.timefactor = 10.0", output)
+            : base(@"akka.loglevel = DEBUG
+                     akka.persistence.snapshot-store.plugin = ""akka.persistence.snapshot-store.inmem""", output)
         {
         }
 
