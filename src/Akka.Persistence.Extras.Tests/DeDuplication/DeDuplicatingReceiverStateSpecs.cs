@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Immutable;
+using System.Linq;
 using FluentAssertions;
 using FsCheck;
 using FsCheck.Experimental;
@@ -48,6 +49,39 @@ namespace Akka.Persistence.Extras.Tests.DeDuplication
 
             var prune = receiverState.Prune(TimeSpan.FromSeconds(5));
             prune.prunedSenders.Should().BeEquivalentTo("foo");
+        }
+
+        [Fact(DisplayName = "UnorderedReceiverState should load and unload its state via Snapshot.")]
+        public void UnorderedReceiverState_should_load_and_recover_from_snapshot()
+        {
+            var confirmable1 = new ConfirmableMessageEnvelope(1L, "foo", "bar");
+            var confirmable2 = new ConfirmableMessageEnvelope(2L, "foo", "bar");
+            var confirmable3 = new ConfirmableMessageEnvelope(1L, "fuber", "bar");
+            var timeProvider = new FakeTimeProvider(DateTime.UtcNow);
+            var receiverState = new UnorderedReceiverState(timeProvider);
+
+            // update our initial state
+            receiverState.ConfirmProcessing(confirmable1.ConfirmationId, confirmable1.SenderId);
+            receiverState.ConfirmProcessing(confirmable2.ConfirmationId, confirmable2.SenderId);
+            receiverState.ConfirmProcessing(confirmable3.ConfirmationId, confirmable3.SenderId);
+
+            // save into a snapshot
+            var snapshot = receiverState.ToSnapshot();
+            snapshot.TrackedIds.Count.Should().Be(2);
+            snapshot.TrackedIds[confirmable1.SenderId].Count.Should().Be(2); // two for "foo"
+            snapshot.TrackedIds[confirmable3.SenderId].Count.Should().Be(1); // one for "fuber"
+            snapshot.TrackedIds[confirmable1.SenderId].Any(x => x.Equals(confirmable1.ConfirmationId)).Should().BeTrue();
+            snapshot.TrackedSenders.Count.Should().Be(2);
+
+            // reload snapshot into new state
+            var receiverState2 = new UnorderedReceiverState(timeProvider);
+            receiverState2.FromSnapshot(snapshot);
+            
+            // validate that we've already processed all of the same things as the previous state
+            receiverState2.TrackedSenders.Should().BeEquivalentTo(receiverState.TrackedSenders);
+            receiverState.AlreadyProcessed(confirmable1.ConfirmationId, confirmable1.SenderId).Should().BeTrue();
+            receiverState.AlreadyProcessed(confirmable2.ConfirmationId, confirmable2.SenderId).Should().BeTrue();
+            receiverState.AlreadyProcessed(confirmable3.ConfirmationId, confirmable3.SenderId).Should().BeTrue();
         }
     }
 

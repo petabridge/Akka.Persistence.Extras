@@ -176,8 +176,8 @@ namespace Akka.Persistence.Extras
             });
             Recover<SnapshotOffer>(snapshotOffer =>
             {
-                if (snapshotOffer.Snapshot is IReceiverState receiverState)
-                    _receiverState = receiverState;
+                if (snapshotOffer.Snapshot is IReceiverStateSnapshot receiverStateSnapshot)
+                    _receiverState = _receiverState.FromSnapshot(receiverStateSnapshot);
                 else
                     Log.Error("{0} should not be used to persist user-" +
                               "defined state under any circumstances. " +
@@ -278,7 +278,7 @@ namespace Akka.Persistence.Extras
             Persist(new Confirmation(CurrentConfirmationId.Value, CurrentSenderId), confirmation =>
             {
                 if (LastSequenceNr % Settings.TakeSnapshotEveryNMessages == 0)
-                    SaveSnapshot(_receiverState);
+                    SaveSnapshot(_receiverState.ToSnapshot());
             });
         }
 
