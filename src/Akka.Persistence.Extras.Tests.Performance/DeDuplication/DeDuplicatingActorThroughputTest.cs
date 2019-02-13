@@ -4,23 +4,25 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using Akka.Actor;
 using NBench;
 
 namespace Akka.AtLeastOnceDeliveryJournaling.Tests.Performance
 {
-    public class UnitTest1
+    public class DeDuplicatingActorThroughputTest
     {
-        public const string CounterName = "Operations";
+        public const string MsgRcvCounter = "MessagesProcessed";
         private Counter _opsCounter;
+        private ActorSystem _actorSystem;
 
         [PerfSetup]
         public void Setup(BenchmarkContext context)
         {
-            _opsCounter = context.GetCounter(CounterName);
+            _opsCounter = context.GetCounter(MsgRcvCounter);
         }
 
         [PerfBenchmark(NumberOfIterations = 5, RunMode = RunMode.Throughput, RunTimeMilliseconds = 1000)]
-        [CounterMeasurement(CounterName)]
+        [CounterMeasurement(MsgRcvCounter)]
         [GcMeasurement(GcMetric.TotalCollections, GcGeneration.AllGc)]
         [MemoryMeasurement(MemoryMetric.TotalBytesAllocated)]
         public void TestMethod1()
