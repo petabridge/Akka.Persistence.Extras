@@ -84,7 +84,14 @@ namespace Akka.Persistence.Extras.Tests.DeDuplication
         public override string PersistenceId { get; }
         protected override object CreateConfirmationReplyMessage(long confirmationId, string senderId, object originalMessage)
         {
-            return new ReplyMessage(confirmationId, senderId, originalMessage);
+            switch (originalMessage)
+            {
+                case ConfirmableMsg msg:
+                    return new ReplyMessage(confirmationId, senderId, msg.Msg);
+                default:
+                    return new ReplyMessage(confirmationId, senderId, originalMessage);
+            }
+            
         }
     }
 
@@ -107,6 +114,33 @@ namespace Akka.Persistence.Extras.Tests.DeDuplication
             var dedup = Sys.ActorOf(Props.Create(() => new TestDeDuplicatingActor()));
             dedup.Tell(new ConfirmableMessageEnvelope(100L, "fakeNews", "canConfirm"));
             ExpectMsg<bool>().Should().BeTrue();
+        }
+
+        [Fact(DisplayName = "A DeDuplicatingActor should confirm a message the first time it's " +
+                            "processed and then de-duplicate it afterwards")]
+        public void DeDuplicatingActor_should_confirm_and_dedupe_message()
+        {
+            var dedup = ActorOfAsTestActorRef<TestDeDuplicatingActor>(Props.Create(() => new TestDeDuplicatingActor()));
+            var confirmableMessage = new TestDeDuplicatingActor.ConfirmableMsg(1L, "foo", "test1");
+            dedup.Tell(confirmableMessage);
+
+            // should get confirmation back
+            var reply1 = ExpectMsg<TestDeDuplicatingActor.ReplyMessage>();
+
+            reply1.ConfirmationId.Should().Be(confirmableMessage.ConfirmationId);
+            reply1.SenderId.Should().Be(confirmableMessage.SenderId);
+            reply1.OriginalMessage.Should().Be(confirmableMessage.Msg);
+            dedup.UnderlyingActor.ReceivedMessages.Count.Should().Be(1);
+
+            // now we send a duplicate
+            dedup.Tell(confirmableMessage);
+            var reply2 = ExpectMsg<TestDeDuplicatingActor.ReplyMessage>();
+
+            // all assertions should be the same
+            reply2.ConfirmationId.Should().Be(confirmableMessage.ConfirmationId);
+            reply2.SenderId.Should().Be(confirmableMessage.SenderId);
+            reply2.OriginalMessage.Should().Be(confirmableMessage.Msg);
+            dedup.UnderlyingActor.ReceivedMessages.Count.Should().Be(1);
         }
     }
 }
