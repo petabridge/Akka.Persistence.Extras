@@ -5,8 +5,10 @@
 // -----------------------------------------------------------------------
 
 using System;
-using System.Diagnostics;
 using Akka.Actor;
+using Akka.Event;
+using Akka.Util.Internal;
+using Debug = System.Diagnostics.Debug;
 
 namespace Akka.Persistence.Extras
 {
@@ -185,7 +187,46 @@ namespace Akka.Persistence.Extras
             return _receiverState.AlreadyProcessed(CurrentConfirmationId.Value, CurrentSenderId);
         }
 
-        
+        protected void ConfirmDelivery()
+        {
+            if (!IsCurrentMessageConfirmable)
+            {
+                Log.Warning("Attempted to confirm non-confirmable message {0}", Context.AsInstanceOf<ActorCell>().CurrentMessage);
+                return;
+            }
+
+            Debug.Assert(CurrentConfirmationId != null, nameof(CurrentConfirmationId) + " != null");
+            _receiverState = _receiverState.ConfirmProcessing(CurrentConfirmationId.Value, CurrentSenderId);
+
+
+            // Persist the current confirmation state
+            Persist(new Confirmation(CurrentConfirmationId.Value, CurrentSenderId), confirmation =>
+            {
+                if (LastSequenceNr % Settings.TakeSnapshotEveryNMessages == 0)
+                {
+                    SaveSnapshot(_receiverState);
+                }
+            });
+        }
+
+        /// <summary>
+        /// This method gets invoked when <see cref="IsDuplicate"/> has already returned <c>true</c>
+        /// for the current message. Can be overriden by end-users.
+        ///
+        /// By default it automatically sends the message produced by <see cref="CreateConfirmationReplyMessage"/>\
+        /// to the current <see cref="ActorBase.Sender"/>.
+        /// </summary>
+        /// <param name="confirmationId">The correlation id of the current message.</param>
+        /// <param name="senderId">The id of the sender of the current message.</param>
+        /// <param name="duplicateMessage">The original message handled by this actor.</param>
+        protected virtual void HandleDuplicate(long confirmationId, string senderId, object duplicateMessage)
+        {
+            var confirmationMessage = CreateConfirmationReplyMessage(confirmationId, senderId, duplicateMessage);
+            Sender.Tell(confirmationMessage);
+        }
+
+        protected abstract object CreateConfirmationReplyMessage(long confirmationId, string senderId,
+            object originalMessage);
 
         #region Utility Methods
 
