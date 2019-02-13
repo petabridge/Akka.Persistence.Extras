@@ -141,6 +141,7 @@ namespace Akka.Persistence.Extras
             _pruneTask = CreatePruneTask();
 
             BuiltInRecovers();
+            BuiltInCommands();
         }
 
         /// <summary>
@@ -202,6 +203,37 @@ namespace Akka.Persistence.Extras
                     Log.Error("{0} should not be used to persist user-" +
                               "defined state under any circumstances. " +
                               "Tried to recover snapshot of type [{1}]. Read the documentation.", GetType(), snapshotOffer.Snapshot.GetType());
+                }
+            });
+        }
+
+        private void BuiltInCommands()
+        {
+            Command<SaveSnapshotSuccess>(snapshot =>
+            {
+                if (Log.IsDebugEnabled)
+                {
+                    Log.Debug("Successfully saved snapshot with SeqNo {0} - purging older entries from journal and snapshotstore", snapshot.Metadata.SequenceNr);
+                }
+
+                DeleteMessages(snapshot.Metadata.SequenceNr);
+                DeleteSnapshots(new SnapshotSelectionCriteria(snapshot.Metadata.SequenceNr-1));
+            });
+
+            Command<SaveSnapshotFailure>(failure =>
+            {
+                Log.Error(failure.Cause, "Failed to save snapshot {0} - " +
+                                         "refraining from deleting any messages from journal.", failure.Metadata.SequenceNr);
+            });
+
+            Command<PruneSendersTick>(prune =>
+            {
+                var pruneResult = _receiverState.Prune(Settings.PruneInterval);
+                _receiverState = pruneResult.newState;
+
+                if (Log.IsDebugEnabled && pruneResult.prunedSenders.Count > 0)
+                {
+                    Log.Debug("Pruned senders [{0}] from ReceiverState. Have not been active for [{1}]", string.Join(",", pruneResult.prunedSenders), Settings.PruneInterval);
                 }
             });
         }
@@ -299,7 +331,7 @@ namespace Akka.Persistence.Extras
         /// </summary>
         /// <param name="currentMessage">The current message processed by the actor.</param>
         /// <param name="replyTarget">Optional. A reference to the actor to whom we should reply.</param>
-        protected void ConfirmAndReply(object currentMessage, IActorRef replyTarget = null)
+        protected virtual void ConfirmAndReply(object currentMessage, IActorRef replyTarget = null)
         {
             ConfirmDelivery();
             Debug.Assert(CurrentConfirmationId != null, nameof(CurrentConfirmationId) + " != null");
