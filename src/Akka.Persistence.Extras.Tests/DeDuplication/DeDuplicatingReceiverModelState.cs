@@ -58,6 +58,16 @@ namespace Akka.Persistence.Extras.Tests.DeDuplication
                     SenderIds.RemoveRange(prunedSenderIds), CurrentTime), prunedSenderIds);
         }
 
+        public IReceiverStateSnapshot ToSnapshot()
+        {
+            throw new NotImplementedException();
+        }
+
+        public IReceiverState FromSnapshot(IReceiverStateSnapshot snapshot)
+        {
+            throw new NotImplementedException();
+        }
+
         public DeDuplicatingReceiverModelState AddTime(TimeSpan additionalTime)
         {
             return new DeDuplicatingReceiverModelState(SenderLru, SenderIds, CurrentTime + additionalTime);

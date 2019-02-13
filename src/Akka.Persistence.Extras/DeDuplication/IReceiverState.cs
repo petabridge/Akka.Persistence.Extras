@@ -80,6 +80,23 @@ namespace Akka.Persistence.Extras
         ///     used to track them for other senders who might be doing work.
         /// </remarks>
         (IReceiverState newState, IReadOnlyList<string> prunedSenders) Prune(TimeSpan notUsedSince);
+
+        /// <summary>
+        ///     Convert this object into a <see cref="IReceiverStateSnapshot" />
+        ///     so it can be serialized.
+        /// </summary>
+        /// <returns>A new snapshot object.</returns>
+        IReceiverStateSnapshot ToSnapshot();
+
+        /// <summary>
+        ///     Re-populate this object from a <see cref="IReceiverStateSnapshot" />.
+        /// </summary>
+        /// <param name="snapshot">The snapshot recovered from Akka.Persistence.</param>
+        /// <returns>
+        ///     A new or possibly the same <see cref="IReceiverState" /> instance, with its data
+        ///     modified by the <see cref="IReceiverStateSnapshot" />.
+        /// </returns>
+        IReceiverState FromSnapshot(IReceiverStateSnapshot snapshot);
     }
 
     /// <inheritdoc />
@@ -172,6 +189,26 @@ namespace Akka.Persistence.Extras
             }
 
             return (this, senderIds);
+        }
+
+        public IReceiverStateSnapshot ToSnapshot()
+        {
+            return new ReceiverStateSnapshot(
+                _trackedIds.ToDictionary(x => x.Key, v => (IReadOnlyList<long>) v.Value.ToList()), TrackedSenders);
+        }
+
+        public IReceiverState FromSnapshot(IReceiverStateSnapshot snapshot)
+        {
+            foreach (var item in snapshot.TrackedIds)
+            {
+                _trackedIds[item.Key] = new CircularBuffer<long>(MaxConfirmationsPerSender);
+                foreach (var id in item.Value)
+                    _trackedIds[item.Key].Enqueue(id);
+            }
+
+            foreach (var item in snapshot.TrackedSenders) _trackedLru[item.Key] = item.Value;
+
+            return this;
         }
 
         private void UpdateLru(string senderId)
