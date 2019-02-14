@@ -120,6 +120,8 @@ namespace Akka.Persistence.Extras
 
         private IReceiverState _receiverState;
 
+        protected DeDuplicatingReceiveActor() : this(new DeDuplicatingReceiverSettings()) { }
+
         protected DeDuplicatingReceiveActor(DeDuplicatingReceiverSettings settings)
         {
             Settings = settings;
