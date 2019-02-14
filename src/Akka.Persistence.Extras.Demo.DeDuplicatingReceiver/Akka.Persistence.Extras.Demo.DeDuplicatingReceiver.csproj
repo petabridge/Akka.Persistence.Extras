@@ -7,6 +7,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="sample.conf" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="sample.conf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Akka.Persistence.Extras\Akka.Persistence.Extras.csproj" />
     <PackageReference Include="Akka.Persistence.Sqlite" Version="$(AkkaVersion)" />
   </ItemGroup>

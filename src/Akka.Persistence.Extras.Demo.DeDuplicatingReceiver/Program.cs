@@ -1,4 +1,6 @@
-﻿using Akka.Actor;
+﻿using System.IO;
+using Akka.Actor;
+using Akka.Configuration;
 
 namespace Akka.Persistence.Extras.Demo.DeDuplicatingReceiver
 {
@@ -6,7 +8,8 @@ namespace Akka.Persistence.Extras.Demo.DeDuplicatingReceiver
     {
         static void Main(string[] args)
         {
-            using (var actorSystem = ActorSystem.Create("AtLeastOnceDeliveryDemo"))
+            var config = ConfigurationFactory.ParseString(File.ReadAllText("sample.conf"));
+            using (var actorSystem = ActorSystem.Create("AtLeastOnceDeliveryDemo", config))
             {
                 var recipientActor = actorSystem.ActorOf(Props.Create(() => new MyRecipientActor()), "receiver");
                 var atLeastOnceDeliveryActor =
