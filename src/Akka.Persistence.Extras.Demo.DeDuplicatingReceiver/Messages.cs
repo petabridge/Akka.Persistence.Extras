@@ -1,4 +1,10 @@
-﻿namespace Akka.Persistence.Extras.Demo.DeDuplicatingReceiver
+﻿// -----------------------------------------------------------------------
+// <copyright file="Messages.cs" company="Petabridge, LLC">
+//      Copyright (C) 2015 - 2019 Petabridge, LLC <https://petabridge.com>
+// </copyright>
+// -----------------------------------------------------------------------
+
+namespace Akka.Persistence.Extras.Demo.DeDuplicatingReceiver
 {
     public class ReliableDeliveryEnvelope<TMessage>
     {
@@ -8,9 +14,9 @@
             MessageId = messageId;
         }
 
-        public TMessage Message { get; private set; }
+        public TMessage Message { get; }
 
-        public long MessageId { get; private set; }
+        public long MessageId { get; }
     }
 
     public class ReliableDeliveryAck
@@ -20,7 +26,7 @@
             MessageId = messageId;
         }
 
-        public long MessageId { get; private set; }
+        public long MessageId { get; }
     }
 
     public class Write
@@ -30,6 +36,6 @@
             Content = content;
         }
 
-        public string Content { get; private set; }
+        public string Content { get; }
     }
 }
