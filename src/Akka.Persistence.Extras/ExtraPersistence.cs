@@ -44,6 +44,17 @@ namespace Akka.Persistence.Extras
         public bool Running { get; }
 
         /// <summary>
+        /// Fetch the current <see cref="ExtraPersistence"/> instance.
+        /// </summary>
+        /// <param name="system">The <see cref="ActorSystem"/>.</param>
+        /// <returns>The singleton <see cref="ExtraPersistence"/> instance associated with <see cref="system"/>.
+        /// Will create the <see cref="ExtraPersistence"/> instance if one doesn't exist.</returns>
+        public static ExtraPersistence For(ActorSystem system)
+        {
+            return system.WithExtension<ExtraPersistence, ExtraPersistenceExt>();
+        }
+
+        /// <summary>
         /// Returns the default HOCON configuration for Akka.Persistence.Extras.
         /// </summary>
         /// <returns>The built-in HOCON config.</returns>

@@ -124,6 +124,9 @@ namespace Akka.Persistence.Extras
 
         protected DeDuplicatingReceiveActor(DeDuplicatingReceiverSettings settings)
         {
+            // force the serializer settings to be injected, if they haven't been already
+            ExtraPersistence.For(Context.System);
+
             Settings = settings;
             _receiverState = CreateInitialState(settings);
             _pruneTask = CreatePruneTask();
