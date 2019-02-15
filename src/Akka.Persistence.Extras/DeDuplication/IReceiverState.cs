@@ -36,6 +36,22 @@ namespace Akka.Persistence.Extras
     }
 
     /// <summary>
+    /// Used to work around issues with value tuple syntax in older versions of the compiler.
+    /// </summary>
+    public struct PrunedResult
+    {
+        public PrunedResult(IReceiverState newState, IReadOnlyList<string> prunedSenders)
+        {
+            this.newState = newState;
+            this.prunedSenders = prunedSenders;
+        }
+
+        public IReceiverState newState { get; }
+
+        public IReadOnlyList<string> prunedSenders { get; }
+    }
+
+    /// <summary>
     ///     Interface for data structures used for tracking delivery state.
     /// </summary>
     public interface IReceiverState
@@ -79,7 +95,7 @@ namespace Akka.Persistence.Extras
         ///     already confirmed from them is effectively zero, therefore we're better off freeing up the memory
         ///     used to track them for other senders who might be doing work.
         /// </remarks>
-        (IReceiverState newState, IReadOnlyList<string> prunedSenders) Prune(TimeSpan notUsedSince);
+        PrunedResult Prune(TimeSpan notUsedSince);
 
         /// <summary>
         ///     Convert this object into a <see cref="IReceiverStateSnapshot" />
@@ -175,7 +191,7 @@ namespace Akka.Persistence.Extras
 
         public IReadOnlyDictionary<string, DateTime> TrackedSenders => _trackedLru.ToImmutableDictionary();
 
-        public (IReceiverState newState, IReadOnlyList<string> prunedSenders) Prune(TimeSpan notUsedSince)
+        public PrunedResult Prune(TimeSpan notUsedSince)
         {
             var pruneTime = _timeProvider.Now.UtcDateTime - notUsedSince;
 
@@ -188,7 +204,7 @@ namespace Akka.Persistence.Extras
                 _trackedLru.Remove(senderId);
             }
 
-            return (this, senderIds);
+            return new PrunedResult(this, senderIds);
         }
 
         public IReceiverStateSnapshot ToSnapshot()
