@@ -3,7 +3,7 @@
 
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>$(NetStandardLibVersion);$(NetFrameworkLibVersion)</TargetFrameworks>
     <Description>Additional features and tools for the Akka.Persistence library.</Description>
   </PropertyGroup>
 
@@ -11,6 +11,6 @@
   <ItemGroup>
     <PackageReference Include="Akka.Persistence" Version="$(AkkaVersion)" />
     <PackageReference Include="Petabridge.Collections" Version="1.0.0" />
+    <PackageReference Include="System.ValueTuple" Version="4.3.0" />
   </ItemGroup>
-
 </Project>
