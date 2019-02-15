@@ -1,4 +1,5 @@
-#### 0.1.0 February 14 2019 ####
-First release of Akka.Persistence.Extras. Introduces the [`DeDuplicatingReceiveActor` base class](https://devops.petabridge.com/api/Akka.Persistence.Extras.DeDuplicatingReceiveActor.html), which can be used to automatically strip out duplicates and guarantee that messages are processed exactly once by the actor.
+#### 0.2.0 February 15 2019 ####
+Minor, but breaking change release of Akka.Persistence.Extras.
 
-You can read more about [how to use the `DeDuplicatingReceiveActor` with Akka.NET and other `AtLeastOnceDeliveryActor` instances here](https://devops.petabridge.com/articles/msgdelivery/deduplication.html).
+* Changed targets to .NET 4.5 and .NET Standard 1.6, in order to temporarily bring the project inline with Akka.NET's targets. We will move back to targeting .NET Standard 2.0 eventually.
+* Removed all dependencies on `System.ValueTuple` as this caused compilation issues on Linux with .NET Framework 4.5.
