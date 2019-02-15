@@ -36,7 +36,7 @@ namespace Akka.Persistence.Extras
     }
 
     /// <summary>
-    /// Used to work around issues with value tuple syntax in older versions of the compiler.
+    ///     Used to work around issues with value tuple syntax in older versions of the compiler.
     /// </summary>
     public struct PrunedResult
     {

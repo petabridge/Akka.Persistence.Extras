@@ -1,7 +1,12 @@
-﻿using System;
+﻿// -----------------------------------------------------------------------
+// <copyright file="DeDuplicatingMessageSerializer.cs" company="Petabridge, LLC">
+//      Copyright (C) 2015 - 2019 Petabridge, LLC <https://petabridge.com>
+// </copyright>
+// -----------------------------------------------------------------------
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Akka.Actor;
 using Akka.Persistence.Extras.Serialization.Msgs;
 using Akka.Serialization;
@@ -11,7 +16,8 @@ using Google.Protobuf;
 namespace Akka.Persistence.Extras.Serialization
 {
     /// <summary>
-    /// <see cref="Serializer"/> implementation for working with types used by the <see cref="DeDuplicatingReceiveActor"/>.
+    ///     <see cref="Serializer" /> implementation for working with types used by the
+    ///     <see cref="DeDuplicatingReceiveActor" />.
     /// </summary>
     public sealed class DeDuplicatingMessageSerializer : SerializerWithStringManifest
     {
@@ -71,9 +77,11 @@ namespace Akka.Persistence.Extras.Serialization
 
         private byte[] ConfirmationToProto(Confirmation c)
         {
-            var p = new Msgs.Confirmation {
+            var p = new Msgs.Confirmation
+            {
                 SenderId = c.SenderId,
-                ConfirmationId = c.ConfirmationId};
+                ConfirmationId = c.ConfirmationId
+            };
 
             return p.ToByteArray();
         }
@@ -90,9 +98,7 @@ namespace Akka.Persistence.Extras.Serialization
             var sP = new Msgs.ReceiverStateSnapshot();
 
             foreach (var trackedSender in snapshot.TrackedSenders)
-            {
                 sP.TrackedSenders.Add(trackedSender.Key, trackedSender.Value.Ticks);
-            }
 
             foreach (var trackerIds in snapshot.TrackedIds)
             {
@@ -112,16 +118,13 @@ namespace Akka.Persistence.Extras.Serialization
             var trackedSenders = new Dictionary<string, DateTime>();
 
             foreach (var trackedId in sP.TrackedIds)
-            {
                 trackedIds[trackedId.Key] = trackedId.Value.ConfirmationIds.ToList();
-            }
 
             foreach (var trackedSender in sP.TrackedSenders)
-            {
                 trackedSenders[trackedSender.Key] = new DateTime(trackedSender.Value, DateTimeKind.Utc);
-            }
 
-            return new ReceiverStateSnapshot(trackedIds.ToDictionary(x => x.Key, y => (IReadOnlyList<long>)y.Value), trackedSenders);
+            return new ReceiverStateSnapshot(trackedIds.ToDictionary(x => x.Key, y => (IReadOnlyList<long>) y.Value),
+                trackedSenders);
         }
 
         private byte[] ConfirmableEnvelopeToProto(ConfirmableMessageEnvelope e)
