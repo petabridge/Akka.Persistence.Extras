@@ -9,6 +9,16 @@
 
 
   <ItemGroup>
+    <None Remove="Config\akka.persistence.extras.conf" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <EmbeddedResource Include="Config\akka.persistence.extras.conf" />
+  </ItemGroup>
+
+
+  <ItemGroup>
     <PackageReference Include="Akka.Persistence" Version="$(AkkaVersion)" />
     <PackageReference Include="Petabridge.Collections" Version="1.0.0" />
   </ItemGroup>
