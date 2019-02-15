@@ -1,0 +1,32 @@
+/**
+ * Copyright (C) 2018 - 2019 Petabridge®, LLC <https://petabridge.com>
+ */
+
+syntax = "proto3";
+package Akka.Persistence.Extras.Serialization.Msgs;
+
+import 'Envelope.proto';
+
+// Used to persist individual confirmations
+message Confirmation{
+	int64 confirmationId = 1;
+	string senderId = 2;
+}
+
+// Data for storing DeDuplicatingReceiveActor snapshots
+message ReceivedMessageCollection{
+	repeated int64 confirmationIds = 1 [packed=true];
+}
+
+message ReceiverStateSnapshot{
+	map<string, int64> trackedSenders = 1;
+	map<string, ReceivedMessageCollection> trackedIds = 2;
+
+}
+
+// Used to serialize confirmable message envelopes over the network
+message ConfirmableMessageEnvelope{
+	int64 confirmationId = 1;
+	string senderId = 2;	
+	Payload msg = 3; // the underlying message that is paired with this envelope.
+}

@@ -1,0 +1,13 @@
+/**
+ * Copyright (C) 2018 - 2019 Petabridge®, LLC <https://petabridge.com>
+ */
+
+syntax = "proto3";
+package Akka.Persistence.Extras.Serialization.Msgs;
+
+// defines the user-defined message, wrapped inside any of the Envelope types supported by Akka.Persistence.Extras
+message Payload {
+  bytes message = 1;
+  int32 serializerId = 2;
+  bytes messageManifest = 3;
+}
