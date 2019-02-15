@@ -1,5 +1,3 @@
-#### 0.2.0 February 15 2019 ####
-Minor, but breaking change release of Akka.Persistence.Extras.
-
-* Changed targets to .NET 4.5 and .NET Standard 1.6, in order to temporarily bring the project inline with Akka.NET's targets. We will move back to targeting .NET Standard 2.0 eventually.
-* Removed all dependencies on `System.ValueTuple` as this caused compilation issues on Linux with .NET Framework 4.5.
+#### 0.3.0 February 15 2019 ####
+* Akka.Persistence.Extras `DeDuplicatingReceiverActor` is now stable.
+* Akka.Persistence.Extras uses Google.Protobuf serialization internally for all of its built-in message types now, in order to guarantee a degree of version tolerance moving forward.
