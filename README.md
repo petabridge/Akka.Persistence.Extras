@@ -1,6 +1,8 @@
 # Akka.Persistence.Extras
 This package contains some additions to Akka.Persistence that many users commonly find to be useful.
 
+You can read more about Akka.Persistence.Extras at: https://devops.petabridge.com/articles/msgdelivery/
+
 ## `AtLeastOnceDeliveryActorV2`
 
 The [`AtLeastOnceDeliveryActor` base type](https://getakka.net/api/Akka.Persistence.AtLeastOnceDeliveryActor.html) in its current form is a total non-pleasure to use in production, for the following reasons:
