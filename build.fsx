@@ -248,7 +248,7 @@ Target "Protobuf" <| fun _ ->
         elif isMacOS then findToolInSubPath "protoc" "tools/Google.Protobuf.Tools/tools/macosx_x64"
         else findToolInSubPath "protoc" "tools/Google.Protobuf.Tools/tools/linux_x64"
 
-    llet protoFiles = [
+    let protoFiles = [
         ("DeDuplicationMessages.proto", "/src/Akka.Persistence.Extras/Serialization/Proto/") ]
 
     printfn "Using proto.exe: %s" protocPath
