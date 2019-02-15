@@ -19,13 +19,13 @@ message ReceivedMessageCollection{
 }
 
 message ReceiverStateSnapshot{
-	map<string, int64> trackedIds = 1;
-	map<string, ReceivedMessageCollection> trackedSenders = 2;
+	map<string, int64> trackedSenders = 1;
+	map<string, ReceivedMessageCollection> trackedIds = 2;
 
 }
 
 // Used to serialize confirmable message envelopes over the network
-message ConrimableMessageEnvelope{
+message ConfirmableMessageEnvelope{
 	int64 confirmationId = 1;
 	string senderId = 2;	
 	Payload msg = 3; // the underlying message that is paired with this envelope.

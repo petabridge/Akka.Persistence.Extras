@@ -27,26 +27,26 @@ namespace Akka.Persistence.Extras.Serialization.Msgs {
             "OAoMQ29uZmlybWF0aW9uEhYKDmNvbmZpcm1hdGlvbklkGAEgASgDEhAKCHNl",
             "bmRlcklkGAIgASgJIjgKGVJlY2VpdmVkTWVzc2FnZUNvbGxlY3Rpb24SGwoP",
             "Y29uZmlybWF0aW9uSWRzGAEgAygDQgIQASKeAwoVUmVjZWl2ZXJTdGF0ZVNu",
-            "YXBzaG90EmUKCnRyYWNrZWRJZHMYASADKAsyUS5Ba2thLlBlcnNpc3RlbmNl",
-            "LkV4dHJhcy5TZXJpYWxpemF0aW9uLk1zZ3MuUmVjZWl2ZXJTdGF0ZVNuYXBz",
-            "aG90LlRyYWNrZWRJZHNFbnRyeRJtCg50cmFja2VkU2VuZGVycxgCIAMoCzJV",
-            "LkFra2EuUGVyc2lzdGVuY2UuRXh0cmFzLlNlcmlhbGl6YXRpb24uTXNncy5S",
-            "ZWNlaXZlclN0YXRlU25hcHNob3QuVHJhY2tlZFNlbmRlcnNFbnRyeRoxCg9U",
-            "cmFja2VkSWRzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgDOgI4",
-            "ARp8ChNUcmFja2VkU2VuZGVyc0VudHJ5EgsKA2tleRgBIAEoCRJUCgV2YWx1",
+            "YXBzaG90Em0KDnRyYWNrZWRTZW5kZXJzGAEgAygLMlUuQWtrYS5QZXJzaXN0",
+            "ZW5jZS5FeHRyYXMuU2VyaWFsaXphdGlvbi5Nc2dzLlJlY2VpdmVyU3RhdGVT",
+            "bmFwc2hvdC5UcmFja2VkU2VuZGVyc0VudHJ5EmUKCnRyYWNrZWRJZHMYAiAD",
+            "KAsyUS5Ba2thLlBlcnNpc3RlbmNlLkV4dHJhcy5TZXJpYWxpemF0aW9uLk1z",
+            "Z3MuUmVjZWl2ZXJTdGF0ZVNuYXBzaG90LlRyYWNrZWRJZHNFbnRyeRo1ChNU",
+            "cmFja2VkU2VuZGVyc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEo",
+            "AzoCOAEaeAoPVHJhY2tlZElkc0VudHJ5EgsKA2tleRgBIAEoCRJUCgV2YWx1",
             "ZRgCIAEoCzJFLkFra2EuUGVyc2lzdGVuY2UuRXh0cmFzLlNlcmlhbGl6YXRp",
-            "b24uTXNncy5SZWNlaXZlZE1lc3NhZ2VDb2xsZWN0aW9uOgI4ASKHAQoZQ29u",
-            "cmltYWJsZU1lc3NhZ2VFbnZlbG9wZRIWCg5jb25maXJtYXRpb25JZBgBIAEo",
-            "AxIQCghzZW5kZXJJZBgCIAEoCRJACgNtc2cYAyABKAsyMy5Ba2thLlBlcnNp",
-            "c3RlbmNlLkV4dHJhcy5TZXJpYWxpemF0aW9uLk1zZ3MuUGF5bG9hZGIGcHJv",
-            "dG8z"));
+            "b24uTXNncy5SZWNlaXZlZE1lc3NhZ2VDb2xsZWN0aW9uOgI4ASKIAQoaQ29u",
+            "ZmlybWFibGVNZXNzYWdlRW52ZWxvcGUSFgoOY29uZmlybWF0aW9uSWQYASAB",
+            "KAMSEAoIc2VuZGVySWQYAiABKAkSQAoDbXNnGAMgASgLMjMuQWtrYS5QZXJz",
+            "aXN0ZW5jZS5FeHRyYXMuU2VyaWFsaXphdGlvbi5Nc2dzLlBheWxvYWRiBnBy",
+            "b3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Akka.Persistence.Extras.Serialization.Msgs.EnvelopeReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::Akka.Persistence.Extras.Serialization.Msgs.Confirmation), global::Akka.Persistence.Extras.Serialization.Msgs.Confirmation.Parser, new[]{ "ConfirmationId", "SenderId" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Akka.Persistence.Extras.Serialization.Msgs.ReceivedMessageCollection), global::Akka.Persistence.Extras.Serialization.Msgs.ReceivedMessageCollection.Parser, new[]{ "ConfirmationIds" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Akka.Persistence.Extras.Serialization.Msgs.ReceiverStateSnapshot), global::Akka.Persistence.Extras.Serialization.Msgs.ReceiverStateSnapshot.Parser, new[]{ "TrackedIds", "TrackedSenders" }, null, null, new pbr::GeneratedClrTypeInfo[] { null, null, }),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Akka.Persistence.Extras.Serialization.Msgs.ConrimableMessageEnvelope), global::Akka.Persistence.Extras.Serialization.Msgs.ConrimableMessageEnvelope.Parser, new[]{ "ConfirmationId", "SenderId", "Msg" }, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Akka.Persistence.Extras.Serialization.Msgs.ReceiverStateSnapshot), global::Akka.Persistence.Extras.Serialization.Msgs.ReceiverStateSnapshot.Parser, new[]{ "TrackedSenders", "TrackedIds" }, null, null, new pbr::GeneratedClrTypeInfo[] { null, null, }),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Akka.Persistence.Extras.Serialization.Msgs.ConfirmableMessageEnvelope), global::Akka.Persistence.Extras.Serialization.Msgs.ConfirmableMessageEnvelope.Parser, new[]{ "ConfirmationId", "SenderId", "Msg" }, null, null, null)
           }));
     }
     #endregion
@@ -338,8 +338,8 @@ namespace Akka.Persistence.Extras.Serialization.Msgs {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public ReceiverStateSnapshot(ReceiverStateSnapshot other) : this() {
-      trackedIds_ = other.trackedIds_.Clone();
       trackedSenders_ = other.trackedSenders_.Clone();
+      trackedIds_ = other.trackedIds_.Clone();
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -347,24 +347,24 @@ namespace Akka.Persistence.Extras.Serialization.Msgs {
       return new ReceiverStateSnapshot(this);
     }
 
-    /// <summary>Field number for the "trackedIds" field.</summary>
-    public const int TrackedIdsFieldNumber = 1;
-    private static readonly pbc::MapField<string, long>.Codec _map_trackedIds_codec
+    /// <summary>Field number for the "trackedSenders" field.</summary>
+    public const int TrackedSendersFieldNumber = 1;
+    private static readonly pbc::MapField<string, long>.Codec _map_trackedSenders_codec
         = new pbc::MapField<string, long>.Codec(pb::FieldCodec.ForString(10), pb::FieldCodec.ForInt64(16), 10);
-    private readonly pbc::MapField<string, long> trackedIds_ = new pbc::MapField<string, long>();
+    private readonly pbc::MapField<string, long> trackedSenders_ = new pbc::MapField<string, long>();
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public pbc::MapField<string, long> TrackedIds {
-      get { return trackedIds_; }
+    public pbc::MapField<string, long> TrackedSenders {
+      get { return trackedSenders_; }
     }
 
-    /// <summary>Field number for the "trackedSenders" field.</summary>
-    public const int TrackedSendersFieldNumber = 2;
-    private static readonly pbc::MapField<string, global::Akka.Persistence.Extras.Serialization.Msgs.ReceivedMessageCollection>.Codec _map_trackedSenders_codec
+    /// <summary>Field number for the "trackedIds" field.</summary>
+    public const int TrackedIdsFieldNumber = 2;
+    private static readonly pbc::MapField<string, global::Akka.Persistence.Extras.Serialization.Msgs.ReceivedMessageCollection>.Codec _map_trackedIds_codec
         = new pbc::MapField<string, global::Akka.Persistence.Extras.Serialization.Msgs.ReceivedMessageCollection>.Codec(pb::FieldCodec.ForString(10), pb::FieldCodec.ForMessage(18, global::Akka.Persistence.Extras.Serialization.Msgs.ReceivedMessageCollection.Parser), 18);
-    private readonly pbc::MapField<string, global::Akka.Persistence.Extras.Serialization.Msgs.ReceivedMessageCollection> trackedSenders_ = new pbc::MapField<string, global::Akka.Persistence.Extras.Serialization.Msgs.ReceivedMessageCollection>();
+    private readonly pbc::MapField<string, global::Akka.Persistence.Extras.Serialization.Msgs.ReceivedMessageCollection> trackedIds_ = new pbc::MapField<string, global::Akka.Persistence.Extras.Serialization.Msgs.ReceivedMessageCollection>();
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public pbc::MapField<string, global::Akka.Persistence.Extras.Serialization.Msgs.ReceivedMessageCollection> TrackedSenders {
-      get { return trackedSenders_; }
+    public pbc::MapField<string, global::Akka.Persistence.Extras.Serialization.Msgs.ReceivedMessageCollection> TrackedIds {
+      get { return trackedIds_; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -380,16 +380,16 @@ namespace Akka.Persistence.Extras.Serialization.Msgs {
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (!TrackedIds.Equals(other.TrackedIds)) return false;
       if (!TrackedSenders.Equals(other.TrackedSenders)) return false;
+      if (!TrackedIds.Equals(other.TrackedIds)) return false;
       return true;
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
-      hash ^= TrackedIds.GetHashCode();
       hash ^= TrackedSenders.GetHashCode();
+      hash ^= TrackedIds.GetHashCode();
       return hash;
     }
 
@@ -400,15 +400,15 @@ namespace Akka.Persistence.Extras.Serialization.Msgs {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
-      trackedIds_.WriteTo(output, _map_trackedIds_codec);
       trackedSenders_.WriteTo(output, _map_trackedSenders_codec);
+      trackedIds_.WriteTo(output, _map_trackedIds_codec);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
-      size += trackedIds_.CalculateSize(_map_trackedIds_codec);
       size += trackedSenders_.CalculateSize(_map_trackedSenders_codec);
+      size += trackedIds_.CalculateSize(_map_trackedIds_codec);
       return size;
     }
 
@@ -417,8 +417,8 @@ namespace Akka.Persistence.Extras.Serialization.Msgs {
       if (other == null) {
         return;
       }
-      trackedIds_.Add(other.trackedIds_);
       trackedSenders_.Add(other.trackedSenders_);
+      trackedIds_.Add(other.trackedIds_);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -430,11 +430,11 @@ namespace Akka.Persistence.Extras.Serialization.Msgs {
             input.SkipLastField();
             break;
           case 10: {
-            trackedIds_.AddEntriesFrom(input, _map_trackedIds_codec);
+            trackedSenders_.AddEntriesFrom(input, _map_trackedSenders_codec);
             break;
           }
           case 18: {
-            trackedSenders_.AddEntriesFrom(input, _map_trackedSenders_codec);
+            trackedIds_.AddEntriesFrom(input, _map_trackedIds_codec);
             break;
           }
         }
@@ -446,10 +446,10 @@ namespace Akka.Persistence.Extras.Serialization.Msgs {
   /// <summary>
   /// Used to serialize confirmable message envelopes over the network
   /// </summary>
-  internal sealed partial class ConrimableMessageEnvelope : pb::IMessage<ConrimableMessageEnvelope> {
-    private static readonly pb::MessageParser<ConrimableMessageEnvelope> _parser = new pb::MessageParser<ConrimableMessageEnvelope>(() => new ConrimableMessageEnvelope());
+  internal sealed partial class ConfirmableMessageEnvelope : pb::IMessage<ConfirmableMessageEnvelope> {
+    private static readonly pb::MessageParser<ConfirmableMessageEnvelope> _parser = new pb::MessageParser<ConfirmableMessageEnvelope>(() => new ConfirmableMessageEnvelope());
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public static pb::MessageParser<ConrimableMessageEnvelope> Parser { get { return _parser; } }
+    public static pb::MessageParser<ConfirmableMessageEnvelope> Parser { get { return _parser; } }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
@@ -462,22 +462,22 @@ namespace Akka.Persistence.Extras.Serialization.Msgs {
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public ConrimableMessageEnvelope() {
+    public ConfirmableMessageEnvelope() {
       OnConstruction();
     }
 
     partial void OnConstruction();
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public ConrimableMessageEnvelope(ConrimableMessageEnvelope other) : this() {
+    public ConfirmableMessageEnvelope(ConfirmableMessageEnvelope other) : this() {
       confirmationId_ = other.confirmationId_;
       senderId_ = other.senderId_;
       Msg = other.msg_ != null ? other.Msg.Clone() : null;
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public ConrimableMessageEnvelope Clone() {
-      return new ConrimableMessageEnvelope(this);
+    public ConfirmableMessageEnvelope Clone() {
+      return new ConfirmableMessageEnvelope(this);
     }
 
     /// <summary>Field number for the "confirmationId" field.</summary>
@@ -518,11 +518,11 @@ namespace Akka.Persistence.Extras.Serialization.Msgs {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
-      return Equals(other as ConrimableMessageEnvelope);
+      return Equals(other as ConfirmableMessageEnvelope);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public bool Equals(ConrimableMessageEnvelope other) {
+    public bool Equals(ConfirmableMessageEnvelope other) {
       if (ReferenceEquals(other, null)) {
         return false;
       }
@@ -581,7 +581,7 @@ namespace Akka.Persistence.Extras.Serialization.Msgs {
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void MergeFrom(ConrimableMessageEnvelope other) {
+    public void MergeFrom(ConfirmableMessageEnvelope other) {
       if (other == null) {
         return;
       }
