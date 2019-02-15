@@ -1,0 +1,22 @@
+/**
+ * Copyright (C) 2018 - 2019 Petabridge®, LLC <https://petabridge.com>
+ */
+
+syntax = "proto3";
+package Akka.Persistence.Extras.Serialization.Msgs;
+
+// Used to persist individual confirmations
+message Confirmation{
+	int64 confirmationId = 1;
+	string senderId = 2;
+}
+
+message ReceivedMessageCollection{
+	repeated int64 confirmationIds = 1 [packed=true];
+}
+
+message ReceiverStateSnapshot{
+	map<string, int64> trackedIds = 1;
+	map<string, ReceivedMessageCollection> trackedSenders = 2;
+
+}
