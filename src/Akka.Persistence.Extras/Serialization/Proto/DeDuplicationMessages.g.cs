@@ -23,25 +23,30 @@ namespace Akka.Persistence.Extras.Serialization.Msgs {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "ChtEZUR1cGxpY2F0aW9uTWVzc2FnZXMucHJvdG8SKkFra2EuUGVyc2lzdGVu",
-            "Y2UuRXh0cmFzLlNlcmlhbGl6YXRpb24uTXNncyI4CgxDb25maXJtYXRpb24S",
-            "FgoOY29uZmlybWF0aW9uSWQYASABKAMSEAoIc2VuZGVySWQYAiABKAkiOAoZ",
-            "UmVjZWl2ZWRNZXNzYWdlQ29sbGVjdGlvbhIbCg9jb25maXJtYXRpb25JZHMY",
-            "ASADKANCAhABIp4DChVSZWNlaXZlclN0YXRlU25hcHNob3QSZQoKdHJhY2tl",
-            "ZElkcxgBIAMoCzJRLkFra2EuUGVyc2lzdGVuY2UuRXh0cmFzLlNlcmlhbGl6",
-            "YXRpb24uTXNncy5SZWNlaXZlclN0YXRlU25hcHNob3QuVHJhY2tlZElkc0Vu",
-            "dHJ5Em0KDnRyYWNrZWRTZW5kZXJzGAIgAygLMlUuQWtrYS5QZXJzaXN0ZW5j",
-            "ZS5FeHRyYXMuU2VyaWFsaXphdGlvbi5Nc2dzLlJlY2VpdmVyU3RhdGVTbmFw",
-            "c2hvdC5UcmFja2VkU2VuZGVyc0VudHJ5GjEKD1RyYWNrZWRJZHNFbnRyeRIL",
-            "CgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAM6AjgBGnwKE1RyYWNrZWRTZW5k",
-            "ZXJzRW50cnkSCwoDa2V5GAEgASgJElQKBXZhbHVlGAIgASgLMkUuQWtrYS5Q",
-            "ZXJzaXN0ZW5jZS5FeHRyYXMuU2VyaWFsaXphdGlvbi5Nc2dzLlJlY2VpdmVk",
-            "TWVzc2FnZUNvbGxlY3Rpb246AjgBYgZwcm90bzM="));
+            "Y2UuRXh0cmFzLlNlcmlhbGl6YXRpb24uTXNncxoORW52ZWxvcGUucHJvdG8i",
+            "OAoMQ29uZmlybWF0aW9uEhYKDmNvbmZpcm1hdGlvbklkGAEgASgDEhAKCHNl",
+            "bmRlcklkGAIgASgJIjgKGVJlY2VpdmVkTWVzc2FnZUNvbGxlY3Rpb24SGwoP",
+            "Y29uZmlybWF0aW9uSWRzGAEgAygDQgIQASKeAwoVUmVjZWl2ZXJTdGF0ZVNu",
+            "YXBzaG90EmUKCnRyYWNrZWRJZHMYASADKAsyUS5Ba2thLlBlcnNpc3RlbmNl",
+            "LkV4dHJhcy5TZXJpYWxpemF0aW9uLk1zZ3MuUmVjZWl2ZXJTdGF0ZVNuYXBz",
+            "aG90LlRyYWNrZWRJZHNFbnRyeRJtCg50cmFja2VkU2VuZGVycxgCIAMoCzJV",
+            "LkFra2EuUGVyc2lzdGVuY2UuRXh0cmFzLlNlcmlhbGl6YXRpb24uTXNncy5S",
+            "ZWNlaXZlclN0YXRlU25hcHNob3QuVHJhY2tlZFNlbmRlcnNFbnRyeRoxCg9U",
+            "cmFja2VkSWRzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgDOgI4",
+            "ARp8ChNUcmFja2VkU2VuZGVyc0VudHJ5EgsKA2tleRgBIAEoCRJUCgV2YWx1",
+            "ZRgCIAEoCzJFLkFra2EuUGVyc2lzdGVuY2UuRXh0cmFzLlNlcmlhbGl6YXRp",
+            "b24uTXNncy5SZWNlaXZlZE1lc3NhZ2VDb2xsZWN0aW9uOgI4ASKHAQoZQ29u",
+            "cmltYWJsZU1lc3NhZ2VFbnZlbG9wZRIWCg5jb25maXJtYXRpb25JZBgBIAEo",
+            "AxIQCghzZW5kZXJJZBgCIAEoCRJACgNtc2cYAyABKAsyMy5Ba2thLlBlcnNp",
+            "c3RlbmNlLkV4dHJhcy5TZXJpYWxpemF0aW9uLk1zZ3MuUGF5bG9hZGIGcHJv",
+            "dG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
-          new pbr::FileDescriptor[] { },
+          new pbr::FileDescriptor[] { global::Akka.Persistence.Extras.Serialization.Msgs.EnvelopeReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::Akka.Persistence.Extras.Serialization.Msgs.Confirmation), global::Akka.Persistence.Extras.Serialization.Msgs.Confirmation.Parser, new[]{ "ConfirmationId", "SenderId" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Akka.Persistence.Extras.Serialization.Msgs.ReceivedMessageCollection), global::Akka.Persistence.Extras.Serialization.Msgs.ReceivedMessageCollection.Parser, new[]{ "ConfirmationIds" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Akka.Persistence.Extras.Serialization.Msgs.ReceiverStateSnapshot), global::Akka.Persistence.Extras.Serialization.Msgs.ReceiverStateSnapshot.Parser, new[]{ "TrackedIds", "TrackedSenders" }, null, null, new pbr::GeneratedClrTypeInfo[] { null, null, })
+            new pbr::GeneratedClrTypeInfo(typeof(global::Akka.Persistence.Extras.Serialization.Msgs.ReceiverStateSnapshot), global::Akka.Persistence.Extras.Serialization.Msgs.ReceiverStateSnapshot.Parser, new[]{ "TrackedIds", "TrackedSenders" }, null, null, new pbr::GeneratedClrTypeInfo[] { null, null, }),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Akka.Persistence.Extras.Serialization.Msgs.ConrimableMessageEnvelope), global::Akka.Persistence.Extras.Serialization.Msgs.ConrimableMessageEnvelope.Parser, new[]{ "ConfirmationId", "SenderId", "Msg" }, null, null, null)
           }));
     }
     #endregion
@@ -196,6 +201,9 @@ namespace Akka.Persistence.Extras.Serialization.Msgs {
 
   }
 
+  /// <summary>
+  /// Data for storing DeDuplicatingReceiveActor snapshots
+  /// </summary>
   internal sealed partial class ReceivedMessageCollection : pb::IMessage<ReceivedMessageCollection> {
     private static readonly pb::MessageParser<ReceivedMessageCollection> _parser = new pb::MessageParser<ReceivedMessageCollection>(() => new ReceivedMessageCollection());
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -427,6 +435,191 @@ namespace Akka.Persistence.Extras.Serialization.Msgs {
           }
           case 18: {
             trackedSenders_.AddEntriesFrom(input, _map_trackedSenders_codec);
+            break;
+          }
+        }
+      }
+    }
+
+  }
+
+  /// <summary>
+  /// Used to serialize confirmable message envelopes over the network
+  /// </summary>
+  internal sealed partial class ConrimableMessageEnvelope : pb::IMessage<ConrimableMessageEnvelope> {
+    private static readonly pb::MessageParser<ConrimableMessageEnvelope> _parser = new pb::MessageParser<ConrimableMessageEnvelope>(() => new ConrimableMessageEnvelope());
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<ConrimableMessageEnvelope> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Akka.Persistence.Extras.Serialization.Msgs.DeDuplicationMessagesReflection.Descriptor.MessageTypes[3]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public ConrimableMessageEnvelope() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public ConrimableMessageEnvelope(ConrimableMessageEnvelope other) : this() {
+      confirmationId_ = other.confirmationId_;
+      senderId_ = other.senderId_;
+      Msg = other.msg_ != null ? other.Msg.Clone() : null;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public ConrimableMessageEnvelope Clone() {
+      return new ConrimableMessageEnvelope(this);
+    }
+
+    /// <summary>Field number for the "confirmationId" field.</summary>
+    public const int ConfirmationIdFieldNumber = 1;
+    private long confirmationId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public long ConfirmationId {
+      get { return confirmationId_; }
+      set {
+        confirmationId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "senderId" field.</summary>
+    public const int SenderIdFieldNumber = 2;
+    private string senderId_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public string SenderId {
+      get { return senderId_; }
+      set {
+        senderId_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "msg" field.</summary>
+    public const int MsgFieldNumber = 3;
+    private global::Akka.Persistence.Extras.Serialization.Msgs.Payload msg_;
+    /// <summary>
+    /// the underlying message that is paired with this envelope.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::Akka.Persistence.Extras.Serialization.Msgs.Payload Msg {
+      get { return msg_; }
+      set {
+        msg_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as ConrimableMessageEnvelope);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(ConrimableMessageEnvelope other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (ConfirmationId != other.ConfirmationId) return false;
+      if (SenderId != other.SenderId) return false;
+      if (!object.Equals(Msg, other.Msg)) return false;
+      return true;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (ConfirmationId != 0L) hash ^= ConfirmationId.GetHashCode();
+      if (SenderId.Length != 0) hash ^= SenderId.GetHashCode();
+      if (msg_ != null) hash ^= Msg.GetHashCode();
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void WriteTo(pb::CodedOutputStream output) {
+      if (ConfirmationId != 0L) {
+        output.WriteRawTag(8);
+        output.WriteInt64(ConfirmationId);
+      }
+      if (SenderId.Length != 0) {
+        output.WriteRawTag(18);
+        output.WriteString(SenderId);
+      }
+      if (msg_ != null) {
+        output.WriteRawTag(26);
+        output.WriteMessage(Msg);
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int CalculateSize() {
+      int size = 0;
+      if (ConfirmationId != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeInt64Size(ConfirmationId);
+      }
+      if (SenderId.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(SenderId);
+      }
+      if (msg_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Msg);
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(ConrimableMessageEnvelope other) {
+      if (other == null) {
+        return;
+      }
+      if (other.ConfirmationId != 0L) {
+        ConfirmationId = other.ConfirmationId;
+      }
+      if (other.SenderId.Length != 0) {
+        SenderId = other.SenderId;
+      }
+      if (other.msg_ != null) {
+        if (msg_ == null) {
+          msg_ = new global::Akka.Persistence.Extras.Serialization.Msgs.Payload();
+        }
+        Msg.MergeFrom(other.Msg);
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(pb::CodedInputStream input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            input.SkipLastField();
+            break;
+          case 8: {
+            ConfirmationId = input.ReadInt64();
+            break;
+          }
+          case 18: {
+            SenderId = input.ReadString();
+            break;
+          }
+          case 26: {
+            if (msg_ == null) {
+              msg_ = new global::Akka.Persistence.Extras.Serialization.Msgs.Payload();
+            }
+            input.ReadMessage(msg_);
             break;
           }
         }
