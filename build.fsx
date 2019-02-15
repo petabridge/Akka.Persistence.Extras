@@ -249,7 +249,8 @@ Target "Protobuf" <| fun _ ->
         else findToolInSubPath "protoc" "tools/Google.Protobuf.Tools/tools/linux_x64"
 
     let protoFiles = [
-        ("DeDuplicationMessages.proto", "/src/Akka.Persistence.Extras/Serialization/Proto/") ]
+        ("DeDuplicationMessages.proto", "/src/Akka.Persistence.Extras/Serialization/Proto/")
+        ("Envelope.proto", "/src/Akka.Persistence.Extras/Serialization/Proto/") ]
 
     printfn "Using proto.exe: %s" protocPath
 
