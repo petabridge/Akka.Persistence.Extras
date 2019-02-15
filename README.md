@@ -3,6 +3,12 @@ This package contains some additions to Akka.Persistence that many users commonl
 
 You can read more about Akka.Persistence.Extras at: https://devops.petabridge.com/articles/msgdelivery/
 
+You can install these tools via the [Akka.Persistence.Extras NuGet Package](https://www.nuget.org/packages/Akka.Persistence.Extras/)
+
+```
+PS> Install-Package Akka.Persistence.Extras
+```
+
 ## `AtLeastOnceDeliveryActorV2`
 
 The [`AtLeastOnceDeliveryActor` base type](https://getakka.net/api/Akka.Persistence.AtLeastOnceDeliveryActor.html) in its current form is a total non-pleasure to use in production, for the following reasons:
