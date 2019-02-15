@@ -119,7 +119,7 @@ Target "NBench" <| fun _ ->
     let projects = 
         match (isWindows) with 
         | true -> !! "./src/**/*.Tests.Performance.csproj"
-        | _ -> !! "./src/**/*.Tests.Performance.csproj" // if you need to filter specs for Linux vs. Windows, do it here
+        | _ -> !! "" // if you need to filter specs for Linux vs. Windows, do it here
 
 
     let runSingleProject project =
