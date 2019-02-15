@@ -49,11 +49,11 @@ namespace Akka.Persistence.Extras.Tests.DeDuplication
 
         public IReadOnlyDictionary<string, DateTime> TrackedSenders => SenderLru;
 
-        public (IReceiverState newState, IReadOnlyList<string> prunedSenders) Prune(TimeSpan notUsedSince)
+        public PrunedResult Prune(TimeSpan notUsedSince)
         {
             var targetTime = CurrentTime - notUsedSince;
             var prunedSenderIds = SenderLru.Where(x => x.Value <= targetTime).Select(x => x.Key).ToList();
-            return (
+            return new PrunedResult(
                 new DeDuplicatingReceiverModelState(SenderLru.RemoveRange(prunedSenderIds),
                     SenderIds.RemoveRange(prunedSenderIds), CurrentTime), prunedSenderIds);
         }
