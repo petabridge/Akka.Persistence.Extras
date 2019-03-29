@@ -30,6 +30,11 @@ namespace Akka.Persistence.Extras.Supervision
         /// </summary>
         Func<object, bool> FinalStopMessage { get; }
 
+        /// <summary>
+        /// The amount of time to use to reset the <see cref="PersistenceSupervisor"/>'s clock.
+        /// </summary>
+        TimeSpan ResetBackoff { get; }
+
         TimeSpan MinBackoff { get; }
         TimeSpan MaxBackoff { get; }
         double RandomFactor { get; }
@@ -40,15 +45,18 @@ namespace Akka.Persistence.Extras.Supervision
     {
         public static readonly TimeSpan DefaultMinBackoff = TimeSpan.FromMilliseconds(100);
         public static readonly TimeSpan DefaultMaxBackoff = TimeSpan.FromMilliseconds(2000);
+        public static readonly TimeSpan DefaultResetBackoff = TimeSpan.FromMilliseconds(5000);
         public const double DefaultRandomFactor = 0.2d;
 
         public PersistenceSupervisionConfig(Func<object, bool> isEvent, Func<object, long, IConfirmableMessage> makeEventConfirmable, 
+            TimeSpan? resetBackoff = null, 
             TimeSpan? minBackoff = null, 
             TimeSpan? maxBackoff = null, 
             double? randomFactor = null, Func<object, bool> finalStopMessage = null)
         {
             IsEvent = isEvent ?? throw new ArgumentNullException(nameof(isEvent));
             MakeEventConfirmable = makeEventConfirmable ?? throw new ArgumentNullException(nameof(makeEventConfirmable));
+            ResetBackoff = resetBackoff ?? DefaultResetBackoff;
             MinBackoff = minBackoff ?? DefaultMinBackoff;
             MaxBackoff = maxBackoff ?? DefaultMaxBackoff;
             RandomFactor = randomFactor ?? DefaultRandomFactor;
@@ -58,6 +66,7 @@ namespace Akka.Persistence.Extras.Supervision
         public Func<object, bool> IsEvent { get; }
         public Func<object, long, IConfirmableMessage> MakeEventConfirmable { get; }
         public Func<object, bool> FinalStopMessage { get; }
+        public TimeSpan ResetBackoff { get; }
         public TimeSpan MinBackoff { get; }
         public TimeSpan MaxBackoff { get; }
         public double RandomFactor { get; }

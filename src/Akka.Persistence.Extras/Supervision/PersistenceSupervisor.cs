@@ -47,16 +47,6 @@ namespace Akka.Persistence.Extras.Supervision
             public IActorRef Ref { get; }
         }
 
-        /// <summary>
-        /// Send this message to the <see cref="BackoffSupervisor"/> and it will reset the back-off. This should be used in conjunction with `withManualReset` in <see cref="BackoffOptionsImpl"/>.
-        /// </summary>
-        [Serializable]
-        public sealed class DoReset
-        {
-            public static readonly DoReset Instance = new DoReset();
-            private DoReset() { }
-        }
-
         [Serializable]
         public sealed class GetRestartCount
         {
@@ -113,30 +103,33 @@ namespace Akka.Persistence.Extras.Supervision
             public IActorRef Sender { get; }
         }
 
-
+        private readonly SortedDictionary<long, PersistentEvent> _buffer = new SortedDictionary<long, PersistentEvent>();
         private readonly IPersistenceSupervisionConfig _config;
         private readonly SupervisorStrategy _strategy;
         private long _currentDeliveryId = 0;
         protected readonly ILoggingAdapter Log = Context.GetLogger();
 
         public PersistenceSupervisor(Props childProps, string childName,
-            IBackoffReset reset,
             IPersistenceSupervisionConfig config, SupervisorStrategy strategy = null)
         {
             ChildProps = childProps;
             ChildName = childName;
-            Reset = reset;
             _config = config;
             _strategy = strategy ?? Actor.SupervisorStrategy.StoppingStrategy;
         }
 
         protected Props ChildProps { get; }
         protected string ChildName { get; }
-        protected IBackoffReset Reset { get; }
+        protected TimeSpan ResetBackoff => _config.ResetBackoff;
 
         protected IActorRef Child { get; set; }
         protected int RestartCountN { get; set; }
         protected bool FinalStopMessageReceived { get; set; }
+
+        protected Func<object, bool> FinalStopMessage => _config.FinalStopMessage;
+        protected Func<object, bool> IsEvent => _config.IsEvent;
+        protected Func<object, long, IConfirmableMessage> MakeEventConfirmable => _config.MakeEventConfirmable;
+
 
         protected override SupervisorStrategy SupervisorStrategy()
         {
@@ -159,6 +152,71 @@ namespace Akka.Persistence.Extras.Supervision
         protected override bool Receive(object message)
         {
             throw new NotImplementedException();
+        }
+
+        protected bool HandleBackoff(object message)
+        {
+            switch (message)
+            {
+                case BackoffSupervisor.StartChild _:
+                    {
+                        StartChild();
+                        Context.System.Scheduler.ScheduleTellOnce(ResetBackoff, Self, new BackoffSupervisor.ResetRestartCount(RestartCountN), Self);
+                        break;
+                    }
+                case BackoffSupervisor.ResetRestartCount count:
+                    {
+                        if (count.Current == RestartCountN)
+                        {
+                            RestartCountN = 0;
+                        }
+                        break;
+                    }
+                case BackoffSupervisor.GetRestartCount _:
+                    Sender.Tell(new BackoffSupervisor.RestartCount(RestartCountN));
+                    break;
+                case BackoffSupervisor.GetCurrentChild _:
+                    Sender.Tell(new BackoffSupervisor.CurrentChild(Child));
+                    break;
+                default:
+                    {
+                        if (Child != null)
+                        {
+                            if (Child.Equals(Sender))
+                            {
+                                // use the BackoffSupervisor as sender
+                                Context.Parent.Tell(message);
+                            }
+                            else
+                            {
+                                Child.Forward(message);
+                                if (!FinalStopMessageReceived && FinalStopMessage != null)
+                                {
+                                    FinalStopMessageReceived = FinalStopMessage(message);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (ReplyWhileStopped != null)
+                            {
+                                Sender.Tell(ReplyWhileStopped);
+                            }
+                            else
+                            {
+                                Context.System.DeadLetters.Forward(message);
+                            }
+
+                            if (FinalStopMessage != null && FinalStopMessage(message))
+                            {
+                                Context.Stop(Self);
+                            }
+                        }
+                        break;
+                    }
+            }
+
+            return true;
         }
 
         private bool OnTerminated(object message)
