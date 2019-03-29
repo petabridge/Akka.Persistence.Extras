@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Akka.Actor;
 using Akka.Event;
@@ -8,9 +9,10 @@ using Akka.Util;
 
 namespace Akka.Persistence.Extras.Supervision
 {
+    /// <inheritdoc />
     /// <summary>
-    /// <see cref="BackoffSupervisor"/> implementation that buffers un-delivered and un-persisted
-    /// messages down to a <see cref="PersistentActor"/> child.
+    /// <see cref="T:Akka.Pattern.BackoffSupervisor" /> implementation that buffers un-delivered and un-persisted
+    /// messages down to a <see cref="T:Akka.Persistence.PersistentActor" /> child.
     /// </summary>
     public class PersistenceSupervisor : ActorBase
     {
@@ -103,7 +105,8 @@ namespace Akka.Persistence.Extras.Supervision
             public IActorRef Sender { get; }
         }
 
-        private readonly SortedDictionary<long, PersistentEvent> _buffer = new SortedDictionary<long, PersistentEvent>();
+        private readonly Dictionary<long, PersistentEvent> _eventBuffer = new Dictionary<long, PersistentEvent>();
+        private readonly Queue<Envelope> _allMsgBuffer = new Queue<Envelope>();
         private readonly IPersistenceSupervisionConfig _config;
         private readonly SupervisorStrategy _strategy;
         private long _currentDeliveryId = 0;
@@ -130,7 +133,6 @@ namespace Akka.Persistence.Extras.Supervision
         protected Func<object, bool> IsEvent => _config.IsEvent;
         protected Func<object, long, IConfirmableMessage> MakeEventConfirmable => _config.MakeEventConfirmable;
 
-
         protected override SupervisorStrategy SupervisorStrategy()
         {
             return _strategy;
@@ -149,9 +151,66 @@ namespace Akka.Persistence.Extras.Supervision
             }
         }
 
+        private void OnChildRecreate()
+        {
+            /*
+             * Drain all internal buffers and try to get the child actor back
+             * into the state it would have been if there were no issues with recovery
+             * or writing to the Akka.Persistence journal.
+             */
+            foreach (var e in _eventBuffer.OrderBy(x => x.Key))
+            {
+                Child.Tell(e.Value.Msg, e.Value.Sender);
+            }
+
+            // Drain the normal operational buffer
+            foreach (var m in _allMsgBuffer)
+            {
+                HandleMsg(m);
+            }
+
+            _allMsgBuffer.Clear();
+        }
+
         protected override bool Receive(object message)
         {
-            throw new NotImplementedException();
+            return OnTerminated(message) || HandleBackoff(message);
+        }
+
+        protected void HandleMsg(object message)
+        {
+            if (IsEvent(message))
+            {
+                var confirmable = MakeEventConfirmable(message, _currentDeliveryId);
+                _currentDeliveryId++;
+                _eventBuffer[confirmable.ConfirmationId] = new PersistentEvent(confirmable, Sender);
+                Child.Tell(confirmable, Sender);
+            }
+            else if (message is Confirmation confirmation)
+            {
+                if (Log.IsDebugEnabled)
+                {
+                    Log.Debug("Confirming delivery of event [{0}] from [{1}]", confirmation.ConfirmationId, confirmation.SenderId);
+                }
+
+                if (!_eventBuffer.Remove(confirmation.ConfirmationId))
+                {
+                    Log.Warning("Received confirmation for unknown event [{0}] from persistent entity [{1}]", confirmation.ConfirmationId, confirmation.SenderId);
+                }
+            }
+            else if (Sender.Equals(Child))
+            {
+                // use the BackoffSupervisor as sender
+                Context.Parent.Tell(message);
+            }
+            else
+            {
+                Child.Forward(message);
+                if (!FinalStopMessageReceived && FinalStopMessage != null)
+                {
+                    FinalStopMessageReceived = FinalStopMessage(message);
+                }
+            }
         }
 
         protected bool HandleBackoff(object message)
@@ -161,6 +220,7 @@ namespace Akka.Persistence.Extras.Supervision
                 case BackoffSupervisor.StartChild _:
                     {
                         StartChild();
+                        OnChildRecreate(); // replay all messages
                         Context.System.Scheduler.ScheduleTellOnce(ResetBackoff, Self, new BackoffSupervisor.ResetRestartCount(RestartCountN), Self);
                         break;
                     }
@@ -182,34 +242,20 @@ namespace Akka.Persistence.Extras.Supervision
                     {
                         if (Child != null)
                         {
-                            if (Child.Equals(Sender))
-                            {
-                                // use the BackoffSupervisor as sender
-                                Context.Parent.Tell(message);
-                            }
-                            else
-                            {
-                                Child.Forward(message);
-                                if (!FinalStopMessageReceived && FinalStopMessage != null)
-                                {
-                                    FinalStopMessageReceived = FinalStopMessage(message);
-                                }
-                            }
+                            HandleMsg(message);
                         }
                         else
                         {
-                            if (ReplyWhileStopped != null)
-                            {
-                                Sender.Tell(ReplyWhileStopped);
-                            }
-                            else
-                            {
-                                Context.System.DeadLetters.Forward(message);
-                            }
 
                             if (FinalStopMessage != null && FinalStopMessage(message))
                             {
+                                Context.System.DeadLetters.Forward(message);
                                 Context.Stop(Self);
+                            }
+                            else
+                            {
+                                // buffer the messages while we recreate the actor
+                                _allMsgBuffer.Enqueue(new Envelope(message, Sender));
                             }
                         }
                         break;
