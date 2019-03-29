@@ -3,7 +3,7 @@
 namespace Akka.Persistence.Extras.Supervision
 {
     /// <summary>
-    /// Configuration used by <see cref="BackoffPersistenceSupervisor"/>.
+    /// Configuration used by <see cref="PersistenceSupervisor"/>.
     /// </summary>
     public interface IPersistenceSupervisionConfig
     {
@@ -29,21 +29,37 @@ namespace Akka.Persistence.Extras.Supervision
         /// is the final message that the underlying child actor will process before being shutdown.
         /// </summary>
         Func<object, bool> FinalStopMessage { get; }
+
+        TimeSpan MinBackoff { get; }
+        TimeSpan MaxBackoff { get; }
+        double RandomFactor { get; }
     }
 
     /// <inheritdoc cref="IPersistenceSupervisionConfig"/>
     public sealed class PersistenceSupervisionConfig : IPersistenceSupervisionConfig
     {
+        public static readonly TimeSpan DefaultMinBackoff = TimeSpan.FromMilliseconds(100);
+        public static readonly TimeSpan DefaultMaxBackoff = TimeSpan.FromMilliseconds(2000);
+        public const double DefaultRandomFactor = 0.2d;
+
         public PersistenceSupervisionConfig(Func<object, bool> isEvent, Func<object, long, IConfirmableMessage> makeEventConfirmable, 
-            Func<object, bool> finalStopMessage = null)
+            TimeSpan? minBackoff = null, 
+            TimeSpan? maxBackoff = null, 
+            double? randomFactor = null, Func<object, bool> finalStopMessage = null)
         {
             IsEvent = isEvent ?? throw new ArgumentNullException(nameof(isEvent));
             MakeEventConfirmable = makeEventConfirmable ?? throw new ArgumentNullException(nameof(makeEventConfirmable));
+            MinBackoff = minBackoff ?? DefaultMinBackoff;
+            MaxBackoff = maxBackoff ?? DefaultMaxBackoff;
+            RandomFactor = randomFactor ?? DefaultRandomFactor;
             FinalStopMessage = finalStopMessage;
         }
 
         public Func<object, bool> IsEvent { get; }
         public Func<object, long, IConfirmableMessage> MakeEventConfirmable { get; }
         public Func<object, bool> FinalStopMessage { get; }
+        public TimeSpan MinBackoff { get; }
+        public TimeSpan MaxBackoff { get; }
+        public double RandomFactor { get; }
     }
 }
