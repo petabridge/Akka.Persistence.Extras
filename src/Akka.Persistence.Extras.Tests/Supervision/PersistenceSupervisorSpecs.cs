@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Akka.Actor;
 using Akka.Pattern;
+using Akka.Persistence.Extras.Supervision;
 using FluentAssertions;
 using Xunit;
 using Xunit.Abstractions;
@@ -10,9 +11,9 @@ using static Akka.Persistence.Extras.Tests.Supervision.PersistenceSupervisorHelp
 
 namespace Akka.Persistence.Extras.Tests.Supervision
 {
-    public class PersistenceSupervisorHappyPathSpecs : TestKit.Xunit2.TestKit
+    public class PersistenceSupervisorSpecs : TestKit.Xunit2.TestKit
     {
-        public PersistenceSupervisorHappyPathSpecs(ITestOutputHelper helper) : base(output: helper)
+        public PersistenceSupervisorSpecs(ITestOutputHelper helper) : base(output: helper)
         {
 
         }
@@ -77,6 +78,56 @@ namespace Akka.Persistence.Extras.Tests.Supervision
 
             ExpectMsg<Confirmation>().ConfirmationId.Should().Be(1L);
             ExpectMsg<Confirmation>().ConfirmationId.Should().Be(2L);
+        }
+
+        [Fact(DisplayName = "PersistenceSupervisor should buffer messages while child is restarting")]
+        public void PersistenceSupervisor_should_buffer_messages_while_ActorIsRestarting()
+        {
+            var childProps = Props.Create(() => new AckActor(TestActor, "fuber", true));
+
+            // make the backoff window huge, so we have to manually restart it
+            var supervisorConfig = new PersistenceSupervisionConfig(o => o is string, ToConfirmableMessage,
+                new ManualReset(), TimeSpan.FromMinutes(1), TimeSpan.FromMinutes(10));
+
+            var supervisorProps = Props.Create(() =>
+                new PersistenceSupervisor(childProps, "myPersistentActor", supervisorConfig, null));
+            var actor = Sys.ActorOf(supervisorProps);
+
+            actor.Tell(BackoffSupervisor.GetCurrentChild.Instance);
+            var child = ExpectMsg<BackoffSupervisor.CurrentChild>().Ref;
+            Watch(child);
+
+            // send some events
+            actor.Tell("event1");
+            actor.Tell("event2");
+            ExpectMsg<Confirmation>().ConfirmationId.Should().Be(1L);
+            ExpectMsg<Confirmation>().ConfirmationId.Should().Be(2L);
+
+            // kill the child
+            EventFilter.Exception<ApplicationException>("boom").ExpectOne(() =>
+            {
+                actor.Tell(AckActor.Fail.Instance);
+                ExpectTerminated(child); // child should be stopped by default parent supervisor strategy
+            });
+
+            // send a blend of events and other messages prior to restart
+            actor.Tell("event3");
+            actor.Tell(1);
+            actor.Tell(2);
+            actor.Tell("event4");
+            actor.Tell(true);
+
+            // shouldn't hear anything back
+            ExpectNoMsg(250);
+
+            // create the child manually (timer is still running in background)
+            actor.Tell(BackoffSupervisor.StartChild.Instance);
+
+            ExpectMsg<Confirmation>().ConfirmationId.Should().Be(3L);
+            ExpectMsg(1);
+            ExpectMsg(2);
+            ExpectMsg<Confirmation>().ConfirmationId.Should().Be(4L);
+            ExpectMsg(true);
         }
     }
 }

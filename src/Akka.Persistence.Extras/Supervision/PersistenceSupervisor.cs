@@ -92,7 +92,7 @@ namespace Akka.Persistence.Extras.Supervision
             // Drain the normal operational buffer
             foreach (var m in _allMsgBuffer)
             {
-                HandleMsg(m);
+                HandleMsg(m.Message, m.Sender);
             }
 
             _allMsgBuffer.Clear();
@@ -103,13 +103,14 @@ namespace Akka.Persistence.Extras.Supervision
             return OnTerminated(message) || HandleBackoff(message);
         }
 
-        protected void HandleMsg(object message)
+        protected void HandleMsg(object message, IActorRef sender = null)
         {
+            sender = sender ?? Sender;
             if (IsEvent(message))
             {
                 var confirmable = MakeEventConfirmable(message, ++_currentDeliveryId);
                 _eventBuffer[confirmable.ConfirmationId] = new PersistentEvent(confirmable, Sender);
-                Child.Tell(confirmable, Sender);
+                Child.Tell(confirmable, sender);
             }
             else if (message is Confirmation confirmation)
             {
@@ -123,14 +124,14 @@ namespace Akka.Persistence.Extras.Supervision
                     Log.Warning("Received confirmation for unknown event [{0}] from persistent entity [{1}]", confirmation.ConfirmationId, confirmation.SenderId);
                 }
             }
-            else if (Sender.Equals(Child))
+            else if (sender.Equals(Child))
             {
                 // use the BackoffSupervisor as sender
                 Context.Parent.Tell(message);
             }
             else
             {
-                Child.Forward(message);
+                Child.Tell(message, sender);
                 if (!FinalStopMessageReceived && FinalStopMessage != null)
                 {
                     FinalStopMessageReceived = FinalStopMessage(message);
