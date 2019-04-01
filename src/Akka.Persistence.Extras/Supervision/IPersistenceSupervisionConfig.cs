@@ -1,7 +1,37 @@
 ﻿using System;
+using Akka.Pattern;
 
 namespace Akka.Persistence.Extras.Supervision
 {
+    /// <summary>
+    /// Used to reset a <see cref="PersistenceSupervisor"/> manually,
+    /// often for testing purposes.
+    /// </summary>
+    public sealed class ManualReset : IBackoffReset
+    {
+
+    }
+
+    /// <summary>
+    /// Used to reset a <see cref="PersistenceSupervisor"/> automatically on a timer.
+    /// </summary>
+    public sealed class AutoReset : IBackoffReset
+    {
+        public static readonly TimeSpan DefaultResetBackoff = TimeSpan.FromMilliseconds(5000);
+
+        /// <summary>
+        /// Default <see cref="AutoReset"/> instance.
+        /// </summary>
+        public static readonly AutoReset Default = new AutoReset(DefaultResetBackoff);
+
+        public AutoReset(TimeSpan resetBackoff)
+        {
+            ResetBackoff = resetBackoff;
+        }
+
+        public TimeSpan ResetBackoff { get; }
+    }
+
     /// <summary>
     /// Configuration used by <see cref="PersistenceSupervisor"/>.
     /// </summary>
@@ -31,9 +61,9 @@ namespace Akka.Persistence.Extras.Supervision
         Func<object, bool> FinalStopMessage { get; }
 
         /// <summary>
-        /// The amount of time to use to reset the <see cref="PersistenceSupervisor"/>'s clock.
+        /// The strategy to use to reset the <see cref="PersistenceSupervisor"/>'s reset clock.
         /// </summary>
-        TimeSpan ResetBackoff { get; }
+        IBackoffReset Reset { get; }
 
         TimeSpan MinBackoff { get; }
         TimeSpan MaxBackoff { get; }
@@ -45,18 +75,18 @@ namespace Akka.Persistence.Extras.Supervision
     {
         public static readonly TimeSpan DefaultMinBackoff = TimeSpan.FromMilliseconds(100);
         public static readonly TimeSpan DefaultMaxBackoff = TimeSpan.FromMilliseconds(2000);
-        public static readonly TimeSpan DefaultResetBackoff = TimeSpan.FromMilliseconds(5000);
+        
         public const double DefaultRandomFactor = 0.2d;
 
         public PersistenceSupervisionConfig(Func<object, bool> isEvent, Func<object, long, IConfirmableMessage> makeEventConfirmable, 
-            TimeSpan? resetBackoff = null, 
+            IBackoffReset resetBackoff = null, 
             TimeSpan? minBackoff = null, 
             TimeSpan? maxBackoff = null, 
             double? randomFactor = null, Func<object, bool> finalStopMessage = null)
         {
             IsEvent = isEvent ?? throw new ArgumentNullException(nameof(isEvent));
             MakeEventConfirmable = makeEventConfirmable ?? throw new ArgumentNullException(nameof(makeEventConfirmable));
-            ResetBackoff = resetBackoff ?? DefaultResetBackoff;
+            Reset = resetBackoff ?? AutoReset.Default;
             MinBackoff = minBackoff ?? DefaultMinBackoff;
             MaxBackoff = maxBackoff ?? DefaultMaxBackoff;
             RandomFactor = randomFactor ?? DefaultRandomFactor;
@@ -66,7 +96,7 @@ namespace Akka.Persistence.Extras.Supervision
         public Func<object, bool> IsEvent { get; }
         public Func<object, long, IConfirmableMessage> MakeEventConfirmable { get; }
         public Func<object, bool> FinalStopMessage { get; }
-        public TimeSpan ResetBackoff { get; }
+        public IBackoffReset Reset { get; }
         public TimeSpan MinBackoff { get; }
         public TimeSpan MaxBackoff { get; }
         public double RandomFactor { get; }

@@ -123,7 +123,7 @@ namespace Akka.Persistence.Extras.Supervision
 
         protected Props ChildProps { get; }
         protected string ChildName { get; }
-        protected TimeSpan ResetBackoff => _config.ResetBackoff;
+        protected IBackoffReset Reset => _config.Reset;
 
         protected IActorRef Child { get; set; }
         protected int RestartCountN { get; set; }
@@ -181,8 +181,7 @@ namespace Akka.Persistence.Extras.Supervision
         {
             if (IsEvent(message))
             {
-                var confirmable = MakeEventConfirmable(message, _currentDeliveryId);
-                _currentDeliveryId++;
+                var confirmable = MakeEventConfirmable(message, ++_currentDeliveryId);
                 _eventBuffer[confirmable.ConfirmationId] = new PersistentEvent(confirmable, Sender);
                 Child.Tell(confirmable, Sender);
             }
@@ -221,7 +220,8 @@ namespace Akka.Persistence.Extras.Supervision
                     {
                         StartChild();
                         OnChildRecreate(); // replay all messages
-                        Context.System.Scheduler.ScheduleTellOnce(ResetBackoff, Self, new BackoffSupervisor.ResetRestartCount(RestartCountN), Self);
+                        if(Reset is AutoReset auto)
+                            Context.System.Scheduler.ScheduleTellOnce(auto.ResetBackoff, Self, new BackoffSupervisor.ResetRestartCount(RestartCountN), Self);
                         break;
                     }
                 case BackoffSupervisor.ResetRestartCount count:
@@ -308,6 +308,13 @@ namespace Akka.Persistence.Extras.Supervision
             var rand = 1.0 + ThreadLocalRandom.Current.NextDouble() * randomFactor;
             var calculateDuration = Math.Min(maxBackoff.Ticks, minBackoff.Ticks * Math.Pow(2, restartCount)) * rand;
             return calculateDuration < 0d || calculateDuration >= long.MaxValue ? maxBackoff : new TimeSpan((long)calculateDuration);
+        }
+
+        public static Props PropsFor(Func<object, long, IConfirmableMessage> makeConfirmable, Func<object, bool> isEvent,
+            Props childProps, string childName, IBackoffReset reset = null, Func<object, bool> finalStopMsg = null)
+        {
+            var config = new PersistenceSupervisionConfig(isEvent, makeConfirmable, reset, finalStopMessage: finalStopMsg);
+            return Props.Create(() => new PersistenceSupervisor(childProps, childName, config, null));
         }
     }
 }
