@@ -110,7 +110,7 @@ namespace Akka.Persistence.Extras.Tests.Supervision
                 sup.Tell(i);
             }
 
-            Within(TimeSpan.FromMinutes(1), () =>
+            Within(TimeSpan.FromMinutes(2), () =>
             {
                 AwaitAssert(() =>
                 {
