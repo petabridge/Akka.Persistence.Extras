@@ -16,80 +16,6 @@ namespace Akka.Persistence.Extras.Supervision
     /// </summary>
     public class PersistenceSupervisor : ActorBase
     {
-        #region Messages
-
-        /// <summary>
-        /// Send this message to the <see cref="BackoffSupervisor"/> and it will reply with <see cref="CurrentChild"/> containing the `ActorRef` of the current child, if any.
-        /// </summary>
-        [Serializable]
-        public sealed class GetCurrentChild
-        {
-            /// <summary>
-            /// TBD
-            /// </summary>
-            public static readonly GetCurrentChild Instance = new GetCurrentChild();
-            private GetCurrentChild() { }
-        }
-
-        /// <summary>
-        /// Send this message to the <see cref="BackoffSupervisor"/> and it will reply with <see cref="CurrentChild"/> containing the `ActorRef` of the current child, if any.
-        /// </summary>
-        [Serializable]
-        public sealed class CurrentChild
-        {
-            /// <summary>
-            /// TBD
-            /// </summary>
-            /// <param name="ref">TBD</param>
-            public CurrentChild(IActorRef @ref)
-            {
-                Ref = @ref;
-            }
-
-            public IActorRef Ref { get; }
-        }
-
-        [Serializable]
-        public sealed class GetRestartCount
-        {
-            public static readonly GetRestartCount Instance = new GetRestartCount();
-            private GetRestartCount() { }
-        }
-
-        [Serializable]
-        public sealed class RestartCount
-        {
-            public RestartCount(int count)
-            {
-                Count = count;
-            }
-
-            public int Count { get; }
-        }
-
-        [Serializable]
-        public sealed class DoStartChild : IDeadLetterSuppression
-        {
-            /// <summary>
-            /// TBD
-            /// </summary>
-            public static readonly DoStartChild Instance = new DoStartChild();
-            private DoStartChild() { }
-        }
-
-        [Serializable]
-        public sealed class ResetRestartCount : IDeadLetterSuppression
-        {
-            public ResetRestartCount(int current)
-            {
-                Current = current;
-            }
-
-            public int Current { get; }
-        }
-
-        #endregion
-
         /// <summary>
         /// In-memory state representation of an un-ACKed message
         /// </summary>
@@ -281,7 +207,7 @@ namespace Akka.Persistence.Extras.Supervision
                     if (maxNrOfRetries == -1 || nextRestartCount <= maxNrOfRetries)
                     {
                         var restartDelay = CalculateDelay(RestartCountN, _config.MinBackoff, _config.MaxBackoff, _config.RandomFactor);
-                        Context.System.Scheduler.ScheduleTellOnce(restartDelay, Self, DoStartChild.Instance, Self);
+                        Context.System.Scheduler.ScheduleTellOnce(restartDelay, Self, BackoffSupervisor.StartChild.Instance, Self);
                         RestartCountN = nextRestartCount;
                     }
                     else
