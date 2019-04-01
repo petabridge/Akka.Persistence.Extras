@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Akka.Actor;
 using Akka.Pattern;
@@ -128,6 +129,42 @@ namespace Akka.Persistence.Extras.Tests.Supervision
             ExpectMsg(2);
             ExpectMsg<Confirmation>().ConfirmationId.Should().Be(4L);
             ExpectMsg(true);
+        }
+
+        [Fact(DisplayName = "PersistentSupervisor should kill itself if child RestartCount exceeded")]
+        public void PersistentSupervisor_should_kill_child_and_self_if_RestartCount_Exceeded()
+        {
+            var childProps = Props.Create(() => new AckActor(TestActor, "fuber", true));
+            var supervisorConfig = new PersistenceSupervisionConfig(o => o is string, ToConfirmableMessage,
+                new ManualReset(), TimeSpan.FromMilliseconds(1), TimeSpan.FromMilliseconds(10));
+
+            var supervisorProps = Props.Create(() =>
+                new PersistenceSupervisor(childProps, "myPersistentActor", supervisorConfig, SupervisorStrategy.StoppingStrategy.WithMaxNrOfRetries(1)));
+            var actor = Sys.ActorOf(supervisorProps);
+
+            Watch(actor);
+
+            actor.Tell(BackoffSupervisor.GetCurrentChild.Instance);
+            var child = ExpectMsg<BackoffSupervisor.CurrentChild>().Ref;
+            Watch(child);
+
+            actor.Tell(AckActor.Fail.Instance); // forces the actor to fail
+            ExpectTerminated(child);
+            
+            AwaitCondition(() =>
+            {
+                actor.Tell(BackoffSupervisor.GetCurrentChild.Instance);
+                child = ExpectMsg<BackoffSupervisor.CurrentChild>().Ref;
+                if (child.IsNobody())
+                    return false;
+
+                Watch(child);
+                actor.Tell(AckActor.Fail.Instance); // forces the actor to fail
+                ExpectTerminated(child);
+                return true;
+            });
+
+            ExpectTerminated(actor);
         }
     }
 }
