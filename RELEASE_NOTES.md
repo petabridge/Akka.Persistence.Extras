@@ -1,3 +1,3 @@
-#### 0.3.0 February 15 2019 ####
-* Akka.Persistence.Extras `DeDuplicatingReceiverActor` is now stable.
-* Akka.Persistence.Extras uses Google.Protobuf serialization internally for all of its built-in message types now, in order to guarantee a degree of version tolerance moving forward.
+#### 0.4.0 April 02 2019 ####
+* Upgraded to Akka.NET v1.3.12.
+* Added the `PersistenceSupervisor` to Akka.Persistence.Extras. This [actor is responsible for providing a more robust Akka.Persistence failure, recovery, and retry supervision model for Akka.NET](https://devops.petabridge.com/articles/state-management/akkadotnet-persistence-failure-handling.html).
