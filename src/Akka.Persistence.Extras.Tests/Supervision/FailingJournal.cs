@@ -20,7 +20,7 @@ namespace Akka.Persistence.Extras.Tests.Supervision
         public override Task ReplayMessagesAsync(IActorContext context, string persistenceId, long fromSequenceNr, long toSequenceNr, long max,
             Action<IPersistentRepresentation> recoveryCallback)
         {
-            var fail = ThreadLocalRandom.Current.Next(0, 10) == 0;
+            var fail = ThreadLocalRandom.Current.Next(0, 2) == 0;
             if (fail)
             {
                 _log.Warning("Throwing random error upon recovery...");

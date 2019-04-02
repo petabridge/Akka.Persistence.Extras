@@ -83,6 +83,7 @@ namespace Akka.Persistence.Extras.Tests.Supervision
     public class AkkaPersistenceSupervisionEnd2EndSpecs : TestKit.Xunit2.TestKit
     {
         public static readonly Config Config = @"akka.persistence.journal.plugin = ""akka.persistence.journal.failure""
+                           akka.persistence.journal.failure.recovery-event-timeout = 2s
                            akka.persistence.journal.failure.class = """ + typeof(FailingJournal).AssemblyQualifiedName + "\"";
 
         public AkkaPersistenceSupervisionEnd2EndSpecs(ITestOutputHelper output)
