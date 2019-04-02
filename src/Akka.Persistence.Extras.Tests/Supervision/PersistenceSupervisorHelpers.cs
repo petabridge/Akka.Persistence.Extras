@@ -1,6 +1,11 @@
-﻿using System;
+﻿// -----------------------------------------------------------------------
+// <copyright file="PersistenceSupervisorHelpers.cs" company="Petabridge, LLC">
+//      Copyright (C) 2015 - 2019 Petabridge, LLC <https://petabridge.com>
+// </copyright>
+// -----------------------------------------------------------------------
+
+using System;
 using Akka.Actor;
-using Akka.Persistence.Extras.Supervision;
 
 namespace Akka.Persistence.Extras.Tests.Supervision
 {
@@ -14,7 +19,8 @@ namespace Akka.Persistence.Extras.Tests.Supervision
         public static Props PersistenceSupervisorFor(Func<object, bool> isEvent,
             Props childProps, string childName)
         {
-            return PersistenceSupervisor.PropsFor(ToConfirmableMessage, isEvent, childProps, childName, new ManualReset());
+            return PersistenceSupervisor.PropsFor(ToConfirmableMessage, isEvent, childProps, childName,
+                new ManualReset());
         }
     }
 }

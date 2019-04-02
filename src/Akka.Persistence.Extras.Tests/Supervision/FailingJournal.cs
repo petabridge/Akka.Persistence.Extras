@@ -1,7 +1,12 @@
-﻿using System;
+﻿// -----------------------------------------------------------------------
+// <copyright file="FailingJournal.cs" company="Petabridge, LLC">
+//      Copyright (C) 2015 - 2019 Petabridge, LLC <https://petabridge.com>
+// </copyright>
+// -----------------------------------------------------------------------
+
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Text;
 using System.Threading.Tasks;
 using Akka.Actor;
 using Akka.Event;
@@ -11,13 +16,14 @@ using Akka.Util;
 namespace Akka.Persistence.Extras.Tests.Supervision
 {
     /// <summary>
-    /// Journal that is subjected to random write and recovery failures
+    ///     Journal that is subjected to random write and recovery failures
     /// </summary>
     public class FailingJournal : SharedMemoryJournal
     {
         private readonly ILoggingAdapter _log = Context.GetLogger();
 
-        public override Task ReplayMessagesAsync(IActorContext context, string persistenceId, long fromSequenceNr, long toSequenceNr, long max,
+        public override Task ReplayMessagesAsync(IActorContext context, string persistenceId, long fromSequenceNr,
+            long toSequenceNr, long max,
             Action<IPersistentRepresentation> recoveryCallback)
         {
             var fail = ThreadLocalRandom.Current.Next(0, 2) == 0;
@@ -27,7 +33,8 @@ namespace Akka.Persistence.Extras.Tests.Supervision
                 throw new ApplicationException("I failed!");
             }
 
-            return base.ReplayMessagesAsync(context, persistenceId, fromSequenceNr, toSequenceNr, max, recoveryCallback);
+            return base.ReplayMessagesAsync(context, persistenceId, fromSequenceNr, toSequenceNr, max,
+                recoveryCallback);
         }
 
         protected override async Task<IImmutableList<Exception>> WriteMessagesAsync(IEnumerable<AtomicWrite> messages)
