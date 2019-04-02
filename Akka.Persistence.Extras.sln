@@ -19,7 +19,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Akka.Persistence.Extras.Tes
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{82C25BE2-77BE-47D9-A3FD-632E92FA95CC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Akka.Persistence.Extras.Demo.DeDuplicatingReceiver", "src\Akka.Persistence.Extras.Demo.DeDuplicatingReceiver\Akka.Persistence.Extras.Demo.DeDuplicatingReceiver.csproj", "{271A63AA-61A7-48E1-BF25-7C3AF8238A29}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Akka.Persistence.Extras.Demo.DeDuplicatingReceiver", "src\Akka.Persistence.Extras.Demo.DeDuplicatingReceiver\Akka.Persistence.Extras.Demo.DeDuplicatingReceiver.csproj", "{271A63AA-61A7-48E1-BF25-7C3AF8238A29}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Akka.Persistence.Extras.Demo.PersistenceSupervisor", "src\Akka.Persistence.Extras.Demo.PersistenceSupervisor\Akka.Persistence.Extras.Demo.PersistenceSupervisor.csproj", "{E15F5593-A504-47A3-A2AC-F2277B302C31}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -43,12 +45,17 @@ Global
 		{271A63AA-61A7-48E1-BF25-7C3AF8238A29}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{271A63AA-61A7-48E1-BF25-7C3AF8238A29}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{271A63AA-61A7-48E1-BF25-7C3AF8238A29}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E15F5593-A504-47A3-A2AC-F2277B302C31}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E15F5593-A504-47A3-A2AC-F2277B302C31}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E15F5593-A504-47A3-A2AC-F2277B302C31}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E15F5593-A504-47A3-A2AC-F2277B302C31}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{271A63AA-61A7-48E1-BF25-7C3AF8238A29} = {82C25BE2-77BE-47D9-A3FD-632E92FA95CC}
+		{E15F5593-A504-47A3-A2AC-F2277B302C31} = {82C25BE2-77BE-47D9-A3FD-632E92FA95CC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B99E6BB8-642A-4A68-86DF-69567CBA700A}
