@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using Akka.Actor;
 using Akka.Pattern;
-using Akka.Persistence.Extras.Supervision;
+using Akka.Persistence.Extras;
 using FluentAssertions;
 using Xunit;
 using Xunit.Abstractions;

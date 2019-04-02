@@ -1,6 +1,6 @@
 ﻿using System;
 using Akka.Actor;
-using Akka.Persistence.Extras.Supervision;
+using Akka.Persistence.Extras;
 
 namespace Akka.Persistence.Extras.Tests.Supervision
 {

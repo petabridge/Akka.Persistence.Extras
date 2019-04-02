@@ -5,7 +5,7 @@ using System.Text;
 using Akka.Event;
 using Akka.Actor;
 using Akka.Configuration;
-using Akka.Persistence.Extras.Supervision;
+using Akka.Persistence.Extras;
 using Xunit;
 using Xunit.Abstractions;
 
