@@ -267,8 +267,11 @@ namespace Akka.Persistence.Extras
         {
             if (!IsCurrentMessageConfirmable)
             {
-                Log.Warning("Attempted to confirm non-confirmable message {0}",
-                    Context.AsInstanceOf<ActorCell>().CurrentMessage);
+                Log.Warning("Attempted to confirm non-confirmable message {0}." +
+                            Environment.NewLine + "{1} needs to implement the IConfirmableMessage interface or be wrapped in a " +
+                            "ConfirmableMessageEnvelope in order to be de-duplicated by this actor." + Environment.NewLine
+                    + "Please see https://devops.petabridge.com/articles/msgdelivery/deduplication.html#iconfirmablemessages for more information.",
+                    Context.AsInstanceOf<ActorCell>().CurrentMessage, Context.AsInstanceOf<ActorCell>().CurrentMessage.GetType());
                 return;
             }
 
