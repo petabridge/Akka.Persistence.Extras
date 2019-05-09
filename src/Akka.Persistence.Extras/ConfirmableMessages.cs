@@ -55,6 +55,33 @@ namespace Akka.Persistence.Extras
     }
 
     /// <summary>
+    ///     A built-in envelope for making user-defined messages <see cref="IConfirmableMessage" />
+    ///     without changing the types of the messages themselves.
+    ///
+    ///     Designed to play nicely with typed Receive statements inside actors.
+    /// </summary>
+    public sealed class ConfirmableMessage<TMessage> : IConfirmableMessage
+    {
+        public ConfirmableMessage(TMessage message, long confirmationId, string senderId)
+        {
+            Message = message;
+            ConfirmationId = confirmationId;
+            SenderId = senderId;
+        }
+
+        /// <summary>
+        ///     The user-defined message.
+        /// </summary>
+        public TMessage Message { get; }
+
+        /// <inheritdoc />
+        public long ConfirmationId { get; }
+
+        /// <inheritdoc />
+        public string SenderId { get; }
+    }
+
+    /// <summary>
     ///     Used to persist the handling of a <see cref="IConfirmableMessage" />
     /// </summary>
     public sealed class Confirmation
