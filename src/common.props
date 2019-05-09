@@ -2,9 +2,10 @@
   <PropertyGroup>
     <Copyright>Copyright © 2015-2019 Petabridge</Copyright>
     <Authors>Petabridge</Authors>
-    <VersionPrefix>0.4.0</VersionPrefix>
-    <PackageReleaseNotes>Upgraded to Akka.NET v1.3.12.
-Added the `PersistenceSupervisor` to Akka.Persistence.Extras. This [actor is responsible for providing a more robust Akka.Persistence failure, recovery, and retry supervision model for Akka.NET](https://devops.petabridge.com/articles/state-management/akkadotnet-persistence-failure-handling.html).</PackageReleaseNotes>
+    <VersionPrefix>0.4.1</VersionPrefix>
+    <PackageReleaseNotes>Upgraded to Akka.NET v1.3.13.
+Added the `ConfirmableMessage&lt;T&gt;` type to make it easier to work with `Receive&lt;T&gt;` and `Command&lt;T&gt;` handlers.
+[added clearer warning message when attempting to confirm message that doesn't implement IConfirmableMessage interface](https://github.com/petabridge/Akka.Persistence.Extras/pull/39)</PackageReleaseNotes>
     <PackageIconUrl>https://petabridge.com/images/logo.png</PackageIconUrl>
     <PackageProjectUrl>
       https://devops.petabridge.com/articles/msgdelivery/
@@ -17,7 +18,7 @@ Added the `PersistenceSupervisor` to Akka.Persistence.Extras. This [actor is res
   <PropertyGroup>
     <NetFrameworkLibVersion>net45</NetFrameworkLibVersion>
     <NetStandardLibVersion>netstandard1.6</NetStandardLibVersion>
-    <AkkaVersion>1.3.12</AkkaVersion>
+    <AkkaVersion>1.3.13</AkkaVersion>
     <NBenchVersion>1.2.2</NBenchVersion>
     <XunitVersion>2.4.1</XunitVersion>
     <TestSdkVersion>15.9.0</TestSdkVersion>
