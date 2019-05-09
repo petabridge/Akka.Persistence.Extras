@@ -17,7 +17,7 @@ Added the `PersistenceSupervisor` to Akka.Persistence.Extras. This [actor is res
   <PropertyGroup>
     <NetFrameworkLibVersion>net45</NetFrameworkLibVersion>
     <NetStandardLibVersion>netstandard1.6</NetStandardLibVersion>
-    <AkkaVersion>1.3.12</AkkaVersion>
+    <AkkaVersion>1.3.13</AkkaVersion>
     <NBenchVersion>1.2.2</NBenchVersion>
     <XunitVersion>2.4.1</XunitVersion>
     <TestSdkVersion>15.9.0</TestSdkVersion>
