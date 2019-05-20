@@ -20,7 +20,7 @@ namespace Akka.Persistence.Extras.Tests.Supervision
         {
         }
 
-        [Fact(DisplayName = "PersistenceSupervisor should buffer messages while child is restarting")]
+        [Fact(DisplayName = "PersistenceSupervisor should buffer messages while child is restarting", Skip = "Racy")]
         public void PersistenceSupervisor_should_buffer_messages_while_ActorIsRestarting()
         {
             Func<IActorRef, Props> childProps = i => Props.Create(() => new AckActor(i, TestActor, "fuber", true));
