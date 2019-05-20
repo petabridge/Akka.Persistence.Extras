@@ -1,4 +1,4 @@
-#### 0.4.1 May 09 2019 ####
-* Upgraded to Akka.NET v1.3.13.
-* Added the `ConfirmableMessage<T>` type to make it easier to work with `Receive<T>` and `Command<T>` handlers.
-* [added clearer warning message when attempting to confirm message that doesn't implement IConfirmableMessage interface](https://github.com/petabridge/Akka.Persistence.Extras/pull/39)
+#### 0.4.2 May 20 2019 ####
+* [Implemented: PersistenceSupervisor: need to add an option for no "make confirmable" function ](https://github.com/petabridge/Akka.Persistence.Extras/issues/47)
+* [Implemented: PersistenceSupervisor: accept a Func<IActorRef> => Props function similar to what we do for Cluster.Sharding](https://github.com/petabridge/Akka.Persistence.Extras/issues/48)
+* `PersistenceSupervisor` now contains overloadable `IConfirmableMessage DoMakeEventConfirmable(object message, long deliveryId)` and `bool CheckIsEvent(object message)` that may be subclassed directly from the `PersistenceSupervisor` base class.
