@@ -242,6 +242,17 @@ namespace Akka.Persistence.Extras
 
         public static Props PropsFor(Func<object, long, IConfirmableMessage> makeConfirmable,
             Func<object, bool> isEvent,
+            Func<IActorRef, Props> childPropsFactory, string childName, IBackoffReset reset = null, Func<object, bool> finalStopMsg = null,
+            SupervisorStrategy strategy = null)
+        {
+            var config =
+                new PersistenceSupervisionConfig(isEvent, makeConfirmable, reset, finalStopMessage: finalStopMsg);
+            return Props.Create(() => new PersistenceSupervisor(childPropsFactory, childName, config,
+                strategy ?? Actor.SupervisorStrategy.StoppingStrategy));
+        }
+
+        public static Props PropsFor(Func<object, long, IConfirmableMessage> makeConfirmable,
+            Func<object, bool> isEvent,
             Props childProps, string childName, IBackoffReset reset = null, Func<object, bool> finalStopMsg = null,
             SupervisorStrategy strategy = null)
         {
