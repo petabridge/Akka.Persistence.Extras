@@ -17,7 +17,7 @@ namespace Akka.Persistence.Extras.Tests.Supervision
         [Fact(DisplayName = "PersistenceSupervisor should be able to deliver IConfirmable messages without having an explicit MakeConfirmableEvent or IsEvent method defined")]
         public void ShouldDeliverConfirmableMessagesToChildWithoutExplicitDecorators()
         {
-            var ackActorProps = Props.Create(() => new AckActor(TestActor, "fuber", true));
+            Func<IActorRef, Props> ackActorProps = i => Props.Create(() => new AckActor(i, TestActor, "fuber", true));
             var ps = Sys.ActorOf(PersistenceSupervisor.PropsFor(ackActorProps, "test"));
             var confirmable = new ConfirmableMessage<int>(1, 1000, "t");
             ps.Tell(confirmable);

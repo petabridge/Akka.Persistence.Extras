@@ -17,9 +17,9 @@ namespace Akka.Persistence.Extras.Tests.Supervision
         }
 
         public static Props PersistenceSupervisorFor(Func<object, bool> isEvent,
-            Props childProps, string childName)
+            Func<IActorRef, Props> childPropsFactory, string childName)
         {
-            return PersistenceSupervisor.PropsFor(ToConfirmableMessage, isEvent, childProps, childName,
+            return PersistenceSupervisor.PropsFor(ToConfirmableMessage, isEvent, childPropsFactory, childName,
                 new ManualReset());
         }
     }

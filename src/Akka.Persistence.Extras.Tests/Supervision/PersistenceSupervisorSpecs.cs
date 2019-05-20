@@ -23,7 +23,7 @@ namespace Akka.Persistence.Extras.Tests.Supervision
         [Fact(DisplayName = "PersistenceSupervisor should buffer messages while child is restarting")]
         public void PersistenceSupervisor_should_buffer_messages_while_ActorIsRestarting()
         {
-            var childProps = Props.Create(() => new AckActor(TestActor, "fuber", true));
+            Func<IActorRef, Props> childProps = i => Props.Create(() => new AckActor(i, TestActor, "fuber", true));
 
             // make the backoff window huge, so we have to manually restart it
             var supervisorConfig = new PersistenceSupervisionConfig(o => o is string, ToConfirmableMessage,
@@ -74,7 +74,7 @@ namespace Akka.Persistence.Extras.Tests.Supervision
             "PersistenceSupervisor should buffer and re-deliver un-ACKed events for child after restart")]
         public void PersistenceSupervisor_should_buffer_unAcked_messages()
         {
-            var childProps = Props.Create(() => new AckActor(TestActor, "fuber", true));
+            Func<IActorRef, Props> childProps = i => Props.Create(() => new AckActor(i, TestActor, "fuber", true));
             var supervisorProps = PersistenceSupervisorFor(o => o is string, childProps, "myPersistentActor");
             var actor = Sys.ActorOf(supervisorProps);
 
@@ -107,7 +107,7 @@ namespace Akka.Persistence.Extras.Tests.Supervision
         [Fact(DisplayName = "PersistenceSupervisor should forward messages to child")]
         public void PersistenceSupervisor_should_forward_normal_msgs()
         {
-            var childProps = Props.Create(() => new AckActor(TestActor, "fuber", true));
+            Func<IActorRef, Props> childProps = i => Props.Create(() => new AckActor(i, TestActor, "fuber", true));
             var supervisorProps = PersistenceSupervisorFor(o => o is string, childProps, "myPersistentActor");
             var actor = Sys.ActorOf(supervisorProps);
 
@@ -136,7 +136,7 @@ namespace Akka.Persistence.Extras.Tests.Supervision
         [Fact(DisplayName = "PersistentSupervisor should kill itself if child RestartCount exceeded")]
         public void PersistentSupervisor_should_kill_child_and_self_if_RestartCount_Exceeded()
         {
-            var childProps = Props.Create(() => new AckActor(TestActor, "fuber", true));
+            Func<IActorRef, Props> childProps = i => Props.Create(() => new AckActor(i, TestActor, "fuber", true));
             var supervisorConfig = new PersistenceSupervisionConfig(o => o is string, ToConfirmableMessage,
                 new ManualReset(), TimeSpan.FromMilliseconds(1), TimeSpan.FromMilliseconds(10));
 
