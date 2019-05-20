@@ -71,7 +71,7 @@ namespace Akka.Persistence.Extras
                 Child = Context.Watch(Context.ActorOf(ChildProps, ChildName));
         }
 
-        private void OnChildRecreate()
+        protected virtual void OnChildRecreate()
         {
             /*
              * Drain all internal buffers and try to get the child actor back
@@ -93,12 +93,22 @@ namespace Akka.Persistence.Extras
             return OnTerminated(message) || HandleBackoff(message);
         }
 
+        protected virtual bool CheckIsEvent(object message)
+        {
+            return IsEvent(message);
+        }
+
+        protected virtual IConfirmableMessage DoMakeEventConfirmable(object message, long deliveryId)
+        {
+            return MakeEventConfirmable(message, deliveryId);
+        }
+
         protected void HandleMsg(object message, IActorRef sender = null)
         {
             sender = sender ?? Sender;
-            if (IsEvent(message))
+            if (CheckIsEvent(message))
             {
-                var confirmable = MakeEventConfirmable(message, ++_currentDeliveryId);
+                var confirmable = DoMakeEventConfirmable(message, ++_currentDeliveryId);
                 _eventBuffer[confirmable.ConfirmationId] = new PersistentEvent(confirmable, Sender);
                 Child.Tell(confirmable, sender);
             }

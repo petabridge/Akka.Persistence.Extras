@@ -87,7 +87,7 @@ namespace Akka.Persistence.Extras
             {
                 if (o is IConfirmableMessage m)
                     return m;
-                return new ConfirmableMessageEnvelope(l, persistentId, m);
+                return new ConfirmableMessageEnvelope(l, persistentId, o);
             };
         } 
 
