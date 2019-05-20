@@ -15,11 +15,13 @@ namespace Akka.Persistence.Extras.Tests.Supervision
     public class AckActor : ReceiveActor
     {
         private readonly string _persistenceId;
+        private readonly IActorRef _ackActor;
         private readonly IActorRef _testActor;
         private bool _acking;
 
-        public AckActor(IActorRef testActor, string persistenceId, bool acking = true)
+        public AckActor(IActorRef ackActor, IActorRef testActor, string persistenceId, bool acking = true)
         {
+            _ackActor = ackActor;
             _testActor = testActor;
             _persistenceId = persistenceId;
             _acking = acking;
@@ -29,7 +31,7 @@ namespace Akka.Persistence.Extras.Tests.Supervision
                 if (_acking)
                 {
                     var confirmation = new Confirmation(msg.ConfirmationId, _persistenceId);
-                    Context.Parent.Tell(confirmation);
+                    _ackActor.Tell(confirmation);
                     _testActor.Tell(confirmation);
                 }
             });
