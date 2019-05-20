@@ -36,6 +36,11 @@ namespace Akka.Persistence.Extras
             ChildName = childName;
             _config = config;
             _strategy = strategy ?? Actor.SupervisorStrategy.StoppingStrategy;
+            
+            // use built-in defaults if unavailable
+            IsEvent = _config.IsEvent ?? PersistenceSupervisionConfig.DefaultIsEvent;
+            MakeEventConfirmable = _config.MakeEventConfirmable ??
+                                   PersistenceSupervisionConfig.DefaultMakeEventConfirmable(childName);
         }
 
         protected Props ChildProps { get; }
@@ -47,8 +52,8 @@ namespace Akka.Persistence.Extras
         protected bool FinalStopMessageReceived { get; set; }
 
         protected Func<object, bool> FinalStopMessage => _config.FinalStopMessage;
-        protected Func<object, bool> IsEvent => _config.IsEvent;
-        protected Func<object, long, IConfirmableMessage> MakeEventConfirmable => _config.MakeEventConfirmable;
+        protected Func<object, bool> IsEvent { get; }
+        protected Func<object, long, IConfirmableMessage> MakeEventConfirmable { get; }
 
         protected override SupervisorStrategy SupervisorStrategy()
         {
@@ -66,7 +71,7 @@ namespace Akka.Persistence.Extras
                 Child = Context.Watch(Context.ActorOf(ChildProps, ChildName));
         }
 
-        private void OnChildRecreate()
+        protected virtual void OnChildRecreate()
         {
             /*
              * Drain all internal buffers and try to get the child actor back
@@ -88,12 +93,22 @@ namespace Akka.Persistence.Extras
             return OnTerminated(message) || HandleBackoff(message);
         }
 
+        protected virtual bool CheckIsEvent(object message)
+        {
+            return IsEvent(message);
+        }
+
+        protected virtual IConfirmableMessage DoMakeEventConfirmable(object message, long deliveryId)
+        {
+            return MakeEventConfirmable(message, deliveryId);
+        }
+
         protected void HandleMsg(object message, IActorRef sender = null)
         {
             sender = sender ?? Sender;
-            if (IsEvent(message))
+            if (CheckIsEvent(message))
             {
-                var confirmable = MakeEventConfirmable(message, ++_currentDeliveryId);
+                var confirmable = DoMakeEventConfirmable(message, ++_currentDeliveryId);
                 _eventBuffer[confirmable.ConfirmationId] = new PersistentEvent(confirmable, Sender);
                 Child.Tell(confirmable, sender);
             }
@@ -228,6 +243,32 @@ namespace Akka.Persistence.Extras
         {
             var config =
                 new PersistenceSupervisionConfig(isEvent, makeConfirmable, reset, finalStopMessage: finalStopMsg);
+            return Props.Create(() => new PersistenceSupervisor(childProps, childName, config,
+                strategy ?? Actor.SupervisorStrategy.StoppingStrategy));
+        }
+
+        /// <summary>
+        /// Overload for users who ARE ALREADY USING <see cref="IConfirmableMessage"/> by the time the message
+        /// is received by the <see cref="PersistenceSupervisor"/>.
+        ///
+        /// If a message is received by the <see cref="PersistenceSupervisor"/> without being decorated by <see cref="IConfirmableMessage"/>,
+        /// under this configuration we will automatically package your message inside a <see cref="ConfirmableMessageEnvelope"/>.
+        /// </summary>
+        /// <param name="childProps"></param>
+        /// <param name="childName"></param>
+        /// <param name="reset"></param>
+        /// <param name="finalStopMsg"></param>
+        /// <param name="strategy"></param>
+        /// <remarks>
+        /// Read the manual. Seriously. 
+        /// </remarks>
+        /// <returns></returns>
+        public static Props PropsFor(Props childProps, string childName, IBackoffReset reset = null,
+            Func<object, bool> finalStopMsg = null,
+            SupervisorStrategy strategy = null)
+        {
+            var config =
+                new PersistenceSupervisionConfig(null, null, reset, finalStopMessage: finalStopMsg);
             return Props.Create(() => new PersistenceSupervisor(childProps, childName, config,
                 strategy ?? Actor.SupervisorStrategy.StoppingStrategy));
         }

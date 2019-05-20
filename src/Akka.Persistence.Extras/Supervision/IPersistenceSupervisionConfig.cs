@@ -76,20 +76,35 @@ namespace Akka.Persistence.Extras
     /// <inheritdoc cref="IPersistenceSupervisionConfig" />
     public sealed class PersistenceSupervisionConfig : IPersistenceSupervisionConfig
     {
+        /// <summary>
+        /// Default IsEvent implementation - checks to see if event is <see cref="IConfirmableMessage"/>.
+        /// </summary>
+        public static readonly Func<object, bool> DefaultIsEvent = o => o is IConfirmableMessage;
+
+        public static Func<object, long, IConfirmableMessage> DefaultMakeEventConfirmable(string persistentId)
+        {
+            return (o, l) =>
+            {
+                if (o is IConfirmableMessage m)
+                    return m;
+                return new ConfirmableMessageEnvelope(l, persistentId, o);
+            };
+        } 
+
         public const double DefaultRandomFactor = 0.2d;
         public static readonly TimeSpan DefaultMinBackoff = TimeSpan.FromMilliseconds(100);
         public static readonly TimeSpan DefaultMaxBackoff = TimeSpan.FromMilliseconds(2000);
 
-        public PersistenceSupervisionConfig(Func<object, bool> isEvent,
-            Func<object, long, IConfirmableMessage> makeEventConfirmable,
+        public PersistenceSupervisionConfig(Func<object, bool> isEvent = null,
+            Func<object, long, IConfirmableMessage> makeEventConfirmable = null,
             IBackoffReset resetBackoff = null,
             TimeSpan? minBackoff = null,
             TimeSpan? maxBackoff = null,
             double? randomFactor = null, Func<object, bool> finalStopMessage = null)
         {
-            IsEvent = isEvent ?? throw new ArgumentNullException(nameof(isEvent));
+            IsEvent = isEvent;
             MakeEventConfirmable =
-                makeEventConfirmable ?? throw new ArgumentNullException(nameof(makeEventConfirmable));
+                makeEventConfirmable;
             Reset = resetBackoff ?? AutoReset.Default;
             MinBackoff = minBackoff ?? DefaultMinBackoff;
             MaxBackoff = maxBackoff ?? DefaultMaxBackoff;
