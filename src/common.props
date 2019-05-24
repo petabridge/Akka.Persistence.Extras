@@ -2,10 +2,8 @@
   <PropertyGroup>
     <Copyright>Copyright © 2015-2019 Petabridge</Copyright>
     <Authors>Petabridge</Authors>
-    <VersionPrefix>0.4.2</VersionPrefix>
-    <PackageReleaseNotes>[Implemented: PersistenceSupervisor: need to add an option for no "make confirmable" function ](https://github.com/petabridge/Akka.Persistence.Extras/issues/47)
-[Implemented: PersistenceSupervisor: accept a Func&lt;IActorRef&gt; =&gt; Props function similar to what we do for Cluster.Sharding](https://github.com/petabridge/Akka.Persistence.Extras/issues/48)
-`PersistenceSupervisor` now contains overloadable `IConfirmableMessage DoMakeEventConfirmable(object message, long deliveryId)` and `bool CheckIsEvent(object message)` that may be subclassed directly from the `PersistenceSupervisor` base class.</PackageReleaseNotes>
+    <VersionPrefix>0.4.3</VersionPrefix>
+    <PackageReleaseNotes>Added ` IConfirmableMessageEnvelope&lt;TMessage&gt;` interface to make it easier to work with `ConfirmableMessage` instances in production settings.</PackageReleaseNotes>
     <PackageIconUrl>https://petabridge.com/images/logo.png</PackageIconUrl>
     <PackageProjectUrl>
       https://devops.petabridge.com/articles/msgdelivery/
