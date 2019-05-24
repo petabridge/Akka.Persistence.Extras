@@ -29,6 +29,7 @@ namespace Akka.Persistence.Extras
         string SenderId { get; }
     }
 
+
     /// <summary>
     ///     A built-in envelope for making user-defined messages <see cref="IConfirmableMessage" />
     ///     without changing the types of the messages themselves.
@@ -55,12 +56,25 @@ namespace Akka.Persistence.Extras
     }
 
     /// <summary>
+    /// Typed "wrapper" interface for exposing confirmable messages that are wrapped inside
+    /// their confirmation metadata.
+    /// </summary>
+    /// <typeparam name="TMessage">The type of underlying message.</typeparam>
+    public interface IConfirmableMessageEnvelope<out TMessage> : IConfirmableMessage
+    {
+        /// <summary>
+        ///     The user-defined message.
+        /// </summary>
+        TMessage Message { get; }
+    }
+
+    /// <summary>
     ///     A built-in envelope for making user-defined messages <see cref="IConfirmableMessage" />
     ///     without changing the types of the messages themselves.
     ///
     ///     Designed to play nicely with typed Receive statements inside actors.
     /// </summary>
-    public sealed class ConfirmableMessage<TMessage> : IConfirmableMessage
+    public sealed class ConfirmableMessage<TMessage> : IConfirmableMessageEnvelope<TMessage>
     {
         public ConfirmableMessage(TMessage message, long confirmationId, string senderId)
         {
@@ -69,9 +83,7 @@ namespace Akka.Persistence.Extras
             SenderId = senderId;
         }
 
-        /// <summary>
-        ///     The user-defined message.
-        /// </summary>
+        /// <inheritdoc />
         public TMessage Message { get; }
 
         /// <inheritdoc />
