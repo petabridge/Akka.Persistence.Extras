@@ -221,7 +221,7 @@ namespace Akka.Persistence.Extras.Tests.DeDuplication
                 replyMsg.SenderId.Should().Be("fuber");
             }
 
-            var msgCount = 12;
+            var msgCount = 1;
 
             // should be enough to generate 12 msgs
             foreach (var seqNo in Enumerable.Range(0, msgCount).Select(x => (long)x)) dedup.Tell(CreateNewMsg(seqNo));
@@ -244,9 +244,9 @@ namespace Akka.Persistence.Extras.Tests.DeDuplication
             var dedup2 = ActorOfAsTestActorRef<TestDeDuplicatingActor>(Props.Create(() => new TestDeDuplicatingActor("m")));
 
             // send the actor a duplicate
-            dedup2.Tell(CreateNewMsg(1L));
+            dedup2.Tell(CreateNewMsg(0L));
             var reply = ExpectMsg<TestDeDuplicatingActor.ReplyMessage>();
-            reply.ConfirmationId.Should().Be(1L);
+            reply.ConfirmationId.Should().Be(0L);
 
             // validate that the state was not modified (because: duplicate)
             dedup2.UnderlyingActor.ReceivedMessages.Count.Should().Be(0);
