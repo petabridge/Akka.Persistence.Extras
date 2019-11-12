@@ -7,13 +7,74 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Akka.Actor;
+using Akka.Event;
 using FluentAssertions;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace Akka.Persistence.Extras.Tests.DeDuplication
 {
+    public class AsyncTestDeDuplicatingActor : DeDuplicatingReceiveActor
+    {
+        private readonly ILoggingAdapter _log = Context.GetLogger();
+        public AsyncTestDeDuplicatingActor(string persistenceId) : this(new DeDuplicatingReceiverSettings(), persistenceId)
+        {
+        }
+
+        public AsyncTestDeDuplicatingActor(DeDuplicatingReceiverSettings settings, string persistenceId) : base(settings)
+        {
+            PersistenceId = persistenceId ?? Uri.EscapeUriString(Self.Path.ToStringWithoutAddress());
+
+            CommandAsync<TestDeDuplicatingActor.ConfirmableMsg>(async c =>
+            {
+                _log.Info("async Received {0}", c);
+                await Task.Delay(10);
+                ReceivedMessages.Add(c.Msg);
+                ConfirmAndReply(c);
+                _log.Info("await Confirmed {0}", c);
+            });
+
+            Command<string>(str => str.Equals("crash"), str => { Crash(); });
+
+            Command<string>(str => str.Equals("canConfirm"), str => { Sender.Tell(IsCurrentMessageConfirmable); });
+
+            CommandAsync<string>(async str =>
+            {
+                _log.Info("async Received {0}", str);
+                await Task.Delay(10);
+                if (IsCurrentMessageConfirmable)
+                {
+                    ReceivedMessages.Add(str);
+                    ConfirmAndReply(str);
+                }
+                _log.Info("await Processed {0}", str);
+            });
+        }
+
+        public List<string> ReceivedMessages { get; } = new List<string>();
+
+        public override string PersistenceId { get; }
+
+        private void Crash()
+        {
+            throw new ApplicationException("HALP");
+        }
+
+        protected override object CreateConfirmationReplyMessage(long confirmationId, string senderId,
+            object originalMessage)
+        {
+            switch (originalMessage)
+            {
+                case TestDeDuplicatingActor.ConfirmableMsg msg:
+                    return new TestDeDuplicatingActor.ReplyMessage(confirmationId, senderId, msg.Msg);
+                default:
+                    return new TestDeDuplicatingActor.ReplyMessage(confirmationId, senderId, originalMessage);
+            }
+        }
+    }
+
     public class TestDeDuplicatingActor : DeDuplicatingReceiveActor
     {
         public TestDeDuplicatingActor(string persistenceId) : this(new DeDuplicatingReceiverSettings(), persistenceId)
@@ -78,6 +139,11 @@ namespace Akka.Persistence.Extras.Tests.DeDuplication
 
             public long ConfirmationId { get; }
             public string SenderId { get; }
+
+            public override string ToString()
+            {
+                return $"ConfirmableMsg(Id = {ConfirmationId}, SenderId={SenderId}, Msg={Msg})";
+            }
         }
 
         public class ReplyMessage
@@ -250,6 +316,44 @@ namespace Akka.Persistence.Extras.Tests.DeDuplication
 
             // validate that the state was not modified (because: duplicate)
             dedup2.UnderlyingActor.ReceivedMessages.Count.Should().Be(0);
+        }
+
+        [Fact(DisplayName = "A DeDuplicatingActor should be able to process using async / await")]
+        public void AsyncDeDuplicatingActor_should_confirm_and_dedup_message()
+        {
+            object MapMsg(int x)
+            {
+                if (x % 2 == 0)
+                    return new TestDeDuplicatingActor.ConfirmableMsg(x, "foo", "test1");
+                return (object) x.ToString();
+            }
+
+            var dedup = ActorOfAsTestActorRef<AsyncTestDeDuplicatingActor>(Props.Create(() => new AsyncTestDeDuplicatingActor("uno")));
+
+            var messages = Enumerable.Range(0, 30)
+                .Select(MapMsg).ToList();
+            foreach (var message in messages)
+            {
+                dedup.Tell(message);
+            }
+            
+
+            // should get confirmation back
+            ReceiveN(messages.Count/2);
+
+            AwaitAssert(() => dedup.UnderlyingActor.ReceivedMessages.Count.Should().Be(messages.Count/2));
+
+            // now we send duplicates plus more real messages
+            var messages2 = messages.Concat(Enumerable.Range(31, 30)
+                .Select(MapMsg)).ToList();
+            foreach (var message in messages2)
+            {
+                dedup.Tell(message);
+            }
+
+            // all assertions should be the same
+            ReceiveN(messages2.Count/2).All(x => x is TestDeDuplicatingActor.ReplyMessage).Should().BeTrue();
+            AwaitAssert(() => dedup.UnderlyingActor.ReceivedMessages.Count.Should().Be(messages2.Count/2));
         }
     }
 }
