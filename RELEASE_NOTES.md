@@ -1,2 +1,2 @@
-#### 0.4.3 May 24 2019 ####
-* Added ` IConfirmableMessageEnvelope<TMessage>` interface to make it easier to work with `ConfirmableMessage` instances in production settings.
+#### 0.4.4 January 04 2020 ####
+* Updated Akka.Persistence.Extras to Akka.NET v1.3.17.
