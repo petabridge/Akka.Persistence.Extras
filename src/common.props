@@ -2,8 +2,8 @@
   <PropertyGroup>
     <Copyright>Copyright © 2015-2019 Petabridge</Copyright>
     <Authors>Petabridge</Authors>
-    <VersionPrefix>0.4.3</VersionPrefix>
-    <PackageReleaseNotes>Added ` IConfirmableMessageEnvelope&lt;TMessage&gt;` interface to make it easier to work with `ConfirmableMessage` instances in production settings.</PackageReleaseNotes>
+    <VersionPrefix>0.4.4</VersionPrefix>
+    <PackageReleaseNotes>Updated Akka.Persistence.Extras to Akka.NET v1.3.17.</PackageReleaseNotes>
     <PackageIconUrl>https://petabridge.com/images/logo.png</PackageIconUrl>
     <PackageProjectUrl>
       https://devops.petabridge.com/articles/msgdelivery/
