@@ -3,7 +3,7 @@
 
 
   <PropertyGroup>
-    <TargetFrameworks>$(NetStandardLibVersion);$(NetFrameworkLibVersion)</TargetFrameworks>
+    <TargetFrameworks>$(NetStandardLibVersion)</TargetFrameworks>
     <Description>Additional features and tools for the Akka.Persistence library.</Description>
   </PropertyGroup>
 
