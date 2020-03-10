@@ -7,7 +7,6 @@
 using System.Linq;
 using Akka.Actor;
 using Akka.Configuration;
-using Hocon;
 
 namespace Akka.Persistence.Extras.Demo.PersistenceSupervisor
 {

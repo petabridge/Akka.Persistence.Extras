@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Text;
 using Akka.Actor;
 using Akka.Configuration;
-using Hocon;
 
 namespace Akka.Persistence.Extras
 {
