@@ -3,7 +3,7 @@
     <Copyright>Copyright © 2015-2020 Petabridge</Copyright>
     <Authors>Petabridge</Authors>
     <VersionPrefix>0.5.0</VersionPrefix>
-    <PackageReleaseNotes>Updated Akka.NET to v1.4.1-rc1</PackageReleaseNotes>
+    <PackageReleaseNotes>Updated Akka.NET to v1.4.1-rc3</PackageReleaseNotes>
     <PackageIconUrl>https://petabridge.com/images/logo.png</PackageIconUrl>
     <PackageProjectUrl>
       https://devops.petabridge.com/articles/msgdelivery/
@@ -15,7 +15,7 @@
   </PropertyGroup>
   <PropertyGroup>
     <TestSdkVersion>16.5.0</TestSdkVersion>
-    <AkkaVersion>1.4.1-rc1</AkkaVersion>
+    <AkkaVersion>1.4.1-rc3</AkkaVersion>
     <NBenchVersion>2.0.1</NBenchVersion>
     <XunitVersion>2.4.1</XunitVersion>
     <NetCoreTestVersion>netcoreapp3.1</NetCoreTestVersion>

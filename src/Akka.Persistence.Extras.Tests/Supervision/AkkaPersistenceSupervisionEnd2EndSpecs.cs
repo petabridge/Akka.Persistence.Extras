@@ -11,7 +11,6 @@ using Akka.Configuration;
 using Akka.Event;
 using Xunit;
 using Xunit.Abstractions;
-using Hocon;
 
 namespace Akka.Persistence.Extras.Tests.Supervision
 {

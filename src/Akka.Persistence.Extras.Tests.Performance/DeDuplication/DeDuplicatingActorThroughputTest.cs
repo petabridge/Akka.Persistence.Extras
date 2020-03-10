@@ -12,7 +12,6 @@ using Akka.Configuration;
 using Akka.Persistence.Extras;
 using Akka.Util.Internal;
 using NBench;
-using Hocon;
 
 namespace Akka.AtLeastOnceDeliveryJournaling.Tests.Performance
 {
