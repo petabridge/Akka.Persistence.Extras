@@ -25,6 +25,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Akka.Persistence.Extras.Dem
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Deserializer", "Deserializer\Deserializer.csproj", "{7538FE67-2D1E-45FE-AB78-D20BE05ED1BA}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "common", "common", "{9319ED8D-DF72-436E-B13B-8FEA23708315}"
+ProjectSection(SolutionItems) = preProject
+	src\common.props = src\common.props
+EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
