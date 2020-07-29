@@ -10,18 +10,16 @@
     </ItemGroup>
 
     <ItemGroup>
-      <None Remove="0068_A_.BIN" />
-      <Content Include="0068_A_.BIN">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Content>
-      <None Remove="0068_B_.BIN" />
-      <Content Include="0068_B_.BIN">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Content>
       <None Update="Snapshot.bin">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
       <None Update="bytes_string.txt">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="0068_A_.BIN">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="0068_B_.BIN">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
     </ItemGroup>

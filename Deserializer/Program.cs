@@ -15,31 +15,20 @@ namespace Deserializer
     {
         static async Task Main(string[] args)
         {
+            const string filename = "Snapshot";
+            
             // Read snapshot bytes
-            var bytes = await File.ReadAllBytesAsync("Snapshot.bin");
+            var bytes = await File.ReadAllBytesAsync($"{filename}.bin");
 
             // Get configured ActorSystem
             var persistenceConfig = ConfigurationFactory.FromResource<ExtraPersistence>("Akka.Persistence.Extras.Config.akka.persistence.extras.conf");
             var system = ActorSystem.Create("Deserializer", persistenceConfig);
-            
-            // Deserialize snapshot
-            var persistenceMessageSerializer = new PersistenceSnapshotSerializer(system as ExtendedActorSystem);
-            var snapshot = persistenceMessageSerializer.FromBinary<Snapshot>(bytes);
-            
-            // Print snapshot to the output
-            Console.Write(JsonConvert.SerializeObject(snapshot.Data));
-            
-            /*PersistentPayload payload = PersistentPayload.Parser.ParseFrom(bytes);
 
-            string manifest = "";
-            if (payload.PayloadManifest != null) manifest = payload.PayloadManifest.ToStringUtf8();
-
-            var data = system.Serialization.Deserialize(payload.Payload.ToByteArray(), 501, "");
+            // Deserilize snapshot with DDUP serializer
+            var snapshot = system.Serialization.Deserialize(bytes, 501, "DDUPSNAPSHOT");
             
-            // Print snapshot to the output
-            Console.Write(JsonConvert.SerializeObject(data));*/
+            // Save data to json file
+            await File.WriteAllTextAsync($"{filename}.data.json", JsonConvert.SerializeObject(snapshot, Formatting.Indented));
         }
-        
-        
     }
 }
