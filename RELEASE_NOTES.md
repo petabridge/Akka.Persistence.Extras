@@ -1,2 +1,2 @@
-#### 0.5.1 November 11 2020 ####
-* Updated Akka.NET to v1.4.12
+#### 0.5.2 November 23 2020 ####
+* [Logging PersistentSupervisor child restart failure as error](https://github.com/petabridge/Akka.Persistence.Extras/issues/114)
