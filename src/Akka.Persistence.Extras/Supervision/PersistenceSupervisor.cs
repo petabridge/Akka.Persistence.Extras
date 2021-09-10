@@ -213,7 +213,7 @@ namespace Akka.Persistence.Extras
                     }
                     else
                     {
-                        Log.Debug(
+                        Log.Error(
                             $"Terminating on restart #{nextRestartCount} which exceeds max allowed restarts ({maxNrOfRetries})");
                         Context.Stop(Self);
                     }
