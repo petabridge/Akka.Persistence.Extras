@@ -19,7 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Akka.Persistence.Extras\Akka.Persistence.Extras.csproj" />
-    <PackageReference Include="Akka.Persistence.Sqlite" Version="1.5.0" />
+    <PackageReference Include="Akka.Persistence.Sqlite" Version="$(AkkaVersion)" />
   </ItemGroup>
 
 </Project>
