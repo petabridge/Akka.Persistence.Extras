@@ -25,7 +25,7 @@ namespace Akka.AtLeastOnceDeliveryJournaling.Tests.Performance
 
         public TestDeDuplicatingActor(DeDuplicatingReceiverSettings settings, string persistenceId) : base(settings)
         {
-            PersistenceId = persistenceId ?? Uri.EscapeUriString(Self.Path.ToStringWithoutAddress());
+            PersistenceId = persistenceId ?? Uri.EscapeDataString(Self.Path.ToStringWithoutAddress());
 
             Command<ConfirmableMsg>(c =>
             {

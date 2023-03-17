@@ -5,8 +5,8 @@
 // -----------------------------------------------------------------------
 
 using System;
-using System.Diagnostics;
 using Akka.Actor;
+using Akka.Event;
 using Akka.Util.Internal;
 
 namespace Akka.Persistence.Extras
@@ -259,7 +259,7 @@ namespace Akka.Persistence.Extras
             if (!IsCurrentMessageConfirmable)
                 return false;
 
-            Debug.Assert(CurrentConfirmationId != null, nameof(CurrentConfirmationId) + " != null");
+            System.Diagnostics.Debug.Assert(CurrentConfirmationId != null, nameof(CurrentConfirmationId) + " != null");
             return _receiverState.AlreadyProcessed(CurrentConfirmationId.Value, CurrentSenderId);
         }
 
@@ -275,7 +275,7 @@ namespace Akka.Persistence.Extras
                 return;
             }
 
-            Debug.Assert(CurrentConfirmationId != null, nameof(CurrentConfirmationId) + " != null");
+            System.Diagnostics.Debug.Assert(CurrentConfirmationId != null, nameof(CurrentConfirmationId) + " != null");
             _receiverState = _receiverState.ConfirmProcessing(CurrentConfirmationId.Value, CurrentSenderId);
 
 
@@ -312,7 +312,7 @@ namespace Akka.Persistence.Extras
         protected virtual void ConfirmAndReply(object currentMessage, IActorRef replyTarget = null)
         {
             ConfirmDelivery();
-            Debug.Assert(CurrentConfirmationId != null, nameof(CurrentConfirmationId) + " != null");
+            System.Diagnostics.Debug.Assert(CurrentConfirmationId != null, nameof(CurrentConfirmationId) + " != null");
             var confirmationMessage =
                 CreateConfirmationReplyMessage(CurrentConfirmationId.Value, CurrentSenderId, currentMessage);
             (replyTarget ?? Sender).Tell(confirmationMessage);

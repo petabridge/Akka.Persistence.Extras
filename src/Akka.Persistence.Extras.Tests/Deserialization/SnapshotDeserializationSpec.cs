@@ -35,7 +35,7 @@ namespace Akka.Persistence.Extras.Tests.Deserialization
             var atLeastOnceDeliveryActor = Sys.ActorOf(Props.Create(() => new AtLeastOnceDeliverySender(recipientActor)), "delivery1");
 
             // Wait until de-duplication actor snapshot is done
-            await AwaitConditionAsync(() => Directory.GetFiles(TargetDir, "snapshot-receiver-*").Any(), TimeSpan.FromSeconds(60));
+            AwaitCondition(() => Directory.GetFiles(TargetDir, "snapshot-receiver-*").Any(), TimeSpan.FromSeconds(60));
             
             // Stop actors
             Sys.Terminate().Wait();
