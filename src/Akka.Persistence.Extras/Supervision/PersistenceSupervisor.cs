@@ -113,7 +113,7 @@ namespace Akka.Persistence.Extras
             if (CheckIsEvent(message))
             {
                 var confirmable = DoMakeEventConfirmable(message, ++_currentDeliveryId);
-                _eventBuffer[confirmable.ConfirmationId] = new PersistentEvent(confirmable, Sender);
+                _eventBuffer[confirmable.ConfirmationId] = new PersistentEvent(confirmable, sender);
                 Child.Tell(confirmable, sender);
             }
             else if (message is Confirmation confirmation)
